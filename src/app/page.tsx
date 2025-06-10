@@ -40,6 +40,7 @@ export default function HomePage() {
         id: crypto.randomUUID(),
         mainText: result.data.main_text,
         hashtags: result.data.hashtags,
+        originalTopic: topic, // Store the original topic
       };
       setGeneratedPosts(prevPosts => [newPost, ...prevPosts]); // Add new post to the beginning
     } else if (result.error) {

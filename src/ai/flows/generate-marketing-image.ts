@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -37,7 +38,7 @@ const generateMarketingImagePrompt = ai.definePrompt({
   name: 'generateMarketingImagePrompt',
   input: {schema: GenerateMarketingImageInputSchema},
   output: {schema: GenerateMarketingImageOutputSchema},
-  prompt: `Generate a marketing image for the topic: {{{topic}}}.  The image should be high quality and photorealistic, suitable for use in social media marketing. Return the image as a data URI.`,
+  prompt: `Generate an illustrative and visually appealing marketing image that complements the topic: {{{topic}}}. The image should act as a visual accompaniment to a text post on this topic, enhancing its message rather than literally depicting it. Aim for a high-quality, photorealistic style suitable for social media. Return the image as a data URI.`,
   config: {
     safetySettings: [
       {
@@ -61,7 +62,7 @@ const generateMarketingImageFlow = ai.defineFlow(
   async input => {
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-exp',
-      prompt: `Generate a marketing image for the topic: ${input.topic}. The image should be high quality and photorealistic, suitable for use in social media marketing.`,      
+      prompt: `Generate an illustrative and visually appealing marketing image that complements the topic: ${input.topic}. The image should act as a visual accompaniment to a text post on this topic, enhancing its message rather than literally depicting it. Aim for a high-quality, photorealistic style suitable for social media.`,      
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },

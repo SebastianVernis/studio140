@@ -15,6 +15,7 @@ export interface ContentPost {
   id: string;
   mainText: string;
   hashtags: string[];
+  originalTopic: string; // Added originalTopic
   imageUrl?: string;
   isGeneratingImage?: boolean;
   imageError?: string;
@@ -32,7 +33,8 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
 
   const handleGenerateImage = async () => {
     onStartImageGeneration(post.id);
-    const result = await generateImageAction({ topic: post.mainText });
+    // Use post.originalTopic instead of post.mainText for image generation
+    const result = await generateImageAction({ topic: post.originalTopic }); 
     if (result.data?.imageUrl) {
       onImageGenerated(post.id, result.data.imageUrl);
     } else {
@@ -94,7 +96,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
           </div>
         ) : post.imageUrl ? (
           <>
-            <Image src={post.imageUrl} alt={`Generated image for: ${post.mainText.substring(0, 50)}`} layout="fill" objectFit="cover" data-ai-hint="social media marketing" />
+            <Image src={post.imageUrl} alt={`Generated image for: ${post.originalTopic.substring(0, 50)}`} layout="fill" objectFit="cover" data-ai-hint="social media marketing" />
             <div className="absolute bottom-2 right-2 flex gap-2 bg-card/80 dark:bg-card/60 p-1.5 rounded-lg shadow-md">
               <Button variant="outline" size="icon" onClick={handleDownloadImage} title="Descargar Imagen" className="h-9 w-9 hover:bg-primary/10">
                 <Download className="h-4 w-4 text-primary" />
