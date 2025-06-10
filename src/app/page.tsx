@@ -5,12 +5,13 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { generateTextAction, type GenerateTextActionResult } from './actions';
+import { generateTextAction, type GenerateTextActionResult, generateImageAction, type GenerateImageActionResult } from './actions';
 import { ContentCard, type ContentPost } from '@/components/content-card';
 import { LoadingSpinner } from '@/components/loading-spinner';
-import { FileText, AlertCircle, Sparkles } from 'lucide-react';
+import { FileText, AlertCircle, Sparkles, Image as ImageIconLucide } from 'lucide-react';
 
 const platformOptions = ["Instagram", "Facebook", "Twitter (X)", "LinkedIn", "TikTok"];
 const toneOptions = ["Profesional", "Amistoso", "Divertido", "Persuasivo", "Inspirador"];
@@ -22,6 +23,10 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedPosts, setGeneratedPosts] = useState<ContentPost[]>([]);
+
+  const [imagePrompt, setImagePrompt] = useState('');
+  const [isLoadingDirectImage, setIsLoadingDirectImage] = useState(false);
+  const [directImageError, setDirectImageError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,16 +45,45 @@ export default function HomePage() {
         id: crypto.randomUUID(),
         mainText: result.data.main_text,
         hashtags: result.data.hashtags,
-        originalTopic: topic, // Store the original topic
+        originalTopic: topic,
       };
-      setGeneratedPosts(prevPosts => [newPost, ...prevPosts]); // Add new post to the beginning
+      setGeneratedPosts(prevPosts => [newPost, ...prevPosts]);
     } else if (result.error) {
       setError(result.error);
-      // Clear results on error to avoid confusion
-      // setGeneratedPosts([]); // User might want to keep old results visible
     }
     setIsLoading(false);
   };
+
+  const handleGenerateDirectImage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!imagePrompt.trim()) {
+      setDirectImageError("Por favor, ingresa un prompt para la imagen.");
+      return;
+    }
+
+    setIsLoadingDirectImage(true);
+    setDirectImageError(null);
+
+    const result: GenerateImageActionResult = await generateImageAction({ topic: imagePrompt });
+
+    if (result.data?.imageUrl) {
+      const newPost: ContentPost = {
+        id: crypto.randomUUID(),
+        mainText: `Prompt: ${imagePrompt}`, // Display the prompt as main text
+        hashtags: [], // No hashtags for direct image generation
+        originalTopic: imagePrompt, // Store the prompt for potential re-generation
+        imageUrl: result.data.imageUrl,
+        isGeneratingImage: false, // Image is already generated
+        imageError: undefined,
+      };
+      setGeneratedPosts(prevPosts => [newPost, ...prevPosts]);
+      setImagePrompt(''); // Clear the prompt field
+    } else if (result.error) {
+      setDirectImageError(result.error);
+    }
+    setIsLoadingDirectImage(false);
+  };
+
 
   const handleImageGenerated = (postId: string, imageUrl: string) => {
     setGeneratedPosts(prevPosts =>
@@ -86,13 +120,21 @@ export default function HomePage() {
         {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>¡Atención!</AlertTitle>
+            <AlertTitle>¡Error al generar texto!</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
+         {directImageError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>¡Error al generar imagen!</AlertTitle>
+            <AlertDescription>{directImageError}</AlertDescription>
+          </Alert>
+        )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <form onSubmit={handleSubmit} className="mb-8">
+          <h2 className="text-xl font-semibold text-foreground mb-3">1. Generar Texto Publicitario</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div>
               <Label htmlFor="topic" className="block text-sm font-medium text-foreground mb-2">Tema o Producto</Label>
               <Input
@@ -133,7 +175,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="text-center mb-8">
+          <div className="text-center">
             <Button 
               type="submit" 
               disabled={isLoading} 
@@ -143,12 +185,49 @@ export default function HomePage() {
               {isLoading ? (
                 <>
                   <LoadingSpinner size={20} className="mr-2" borderColor="border-primary-foreground/50" borderTopColor="border-t-primary-foreground" />
-                  Generando...
+                  Generando Texto...
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 h-5 w-5" />
-                  Generar Contenido
+                  Generar Texto
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+        
+        <div className="border-t border-border my-8"></div>
+
+        <form onSubmit={handleGenerateDirectImage} className="mb-8">
+           <h2 className="text-xl font-semibold text-foreground mb-3">2. Generar Imagen desde Prompt</h2>
+          <div>
+            <Label htmlFor="imagePrompt" className="block text-sm font-medium text-foreground mb-2">Tu Prompt para la Imagen</Label>
+            <Textarea
+              id="imagePrompt"
+              value={imagePrompt}
+              onChange={(e) => setImagePrompt(e.target.value)}
+              className="w-full px-4 py-2 border-input rounded-lg focus:ring-2 focus:ring-ring min-h-[80px]"
+              placeholder="Ej: Un astronauta surfeando en una ola cósmica, estilo synthwave."
+              disabled={isLoadingDirectImage}
+            />
+          </div>
+           <div className="text-center mt-6">
+            <Button 
+              type="submit" 
+              disabled={isLoadingDirectImage} 
+              className="bg-accent text-accent-foreground font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring btn-transition"
+              size="lg"
+            >
+              {isLoadingDirectImage ? (
+                <>
+                  <LoadingSpinner size={20} className="mr-2" borderColor="border-accent-foreground/50" borderTopColor="border-t-accent-foreground" />
+                  Creando Imagen...
+                </>
+              ) : (
+                <>
+                  <ImageIconLucide className="mr-2 h-5 w-5" />
+                  Generar Solo Imagen
                 </>
               )}
             </Button>
@@ -156,14 +235,21 @@ export default function HomePage() {
         </form>
 
         <div id="results">
-          {isLoading && generatedPosts.length === 0 && ( // Show main loader only if no posts exist yet
+          {(isLoading && generatedPosts.length === 0) && ( 
             <div className="flex flex-col justify-center items-center py-8 text-center">
               <LoadingSpinner size={40} />
               <p className="ml-4 text-muted-foreground mt-3">Generando ideas creativas...</p>
             </div>
           )}
+           {(isLoadingDirectImage && generatedPosts.length === 0) && ( 
+            <div className="flex flex-col justify-center items-center py-8 text-center">
+              <LoadingSpinner size={40} />
+              <p className="ml-4 text-muted-foreground mt-3">Dando vida a tu prompt...</p>
+            </div>
+          )}
 
-          {!isLoading && generatedPosts.length === 0 && !error && (
+
+          {!isLoading && !isLoadingDirectImage && generatedPosts.length === 0 && !error && !directImageError && (
             <div className="bg-muted/50 p-6 rounded-xl border border-border flex flex-col justify-center items-center text-center md:col-span-3">
               <FileText className="w-12 h-12 text-primary opacity-75 mb-4" />
               <h3 className="font-semibold text-foreground font-headline">Listo para Crear</h3>
@@ -172,6 +258,8 @@ export default function HomePage() {
           )}
           
           {generatedPosts.length > 0 && (
+            <>
+            <h2 className="text-2xl font-semibold text-foreground mb-6 mt-10 text-center">Resultados Generados</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {generatedPosts.map(post => (
                 <ContentCard 
@@ -183,9 +271,12 @@ export default function HomePage() {
                 />
               ))}
             </div>
+            </>
           )}
         </div>
       </main>
     </div>
   );
 }
+
+    
