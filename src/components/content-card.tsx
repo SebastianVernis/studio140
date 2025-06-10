@@ -2,7 +2,6 @@
 "use client";
 
 import type { FC } from 'react';
-import { useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { generateImageAction } from '@/app/actions';
 import { LoadingSpinner } from './loading-spinner';
-import { Image as ImageIcon, Copy, Sparkles } from 'lucide-react';
+import { ImageIcon, Copy, Sparkles, Download, RefreshCw } from 'lucide-react';
 
 export interface ContentPost {
   id: string;
@@ -41,6 +40,31 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     }
   };
 
+  const handleDownloadImage = () => {
+    if (!post.imageUrl) return;
+    const link = document.createElement('a');
+    link.href = post.imageUrl;
+    // Extract filename if possible, otherwise use a generic one
+    let filename = "social-spark-image.png";
+    try {
+        const urlParts = post.imageUrl.split('/');
+        const lastPart = urlParts[urlParts.length -1];
+        if (lastPart.includes('.')) { // basic check for extension
+            filename = lastPart.split('?')[0]; // remove query params if any
+        }
+    } catch (e) {
+        // fallback to generic name if parsing fails
+    }
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({
+      title: 'Imagen descargada',
+      description: 'La descarga de la imagen ha comenzado.',
+    });
+  };
+
   const handleCopyToClipboard = () => {
     const textToCopy = `${post.mainText}\n\n${post.hashtags.map(tag => `#${tag}`).join(' ')}`;
     navigator.clipboard.writeText(textToCopy)
@@ -62,19 +86,38 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
 
   return (
     <Card className="flex flex-col h-full overflow-hidden shadow-lg rounded-2xl">
-      <CardHeader className="p-0 aspect-video w-full relative bg-slate-50 border-b border-slate-200 flex items-center justify-center">
+      <CardHeader className="p-0 aspect-video w-full relative bg-slate-50 dark:bg-slate-800 border-b border-border flex items-center justify-center">
         {post.isGeneratingImage ? (
           <div className="flex flex-col items-center justify-center h-full">
             <LoadingSpinner size={32} borderTopColor="border-t-primary" />
             <p className="text-xs text-muted-foreground mt-2">Creando imagen...</p>
           </div>
         ) : post.imageUrl ? (
-          <Image src={post.imageUrl} alt={`Generated image for: ${post.mainText.substring(0, 50)}`} layout="fill" objectFit="cover" data-ai-hint="social media marketing" />
+          <>
+            <Image src={post.imageUrl} alt={`Generated image for: ${post.mainText.substring(0, 50)}`} layout="fill" objectFit="cover" data-ai-hint="social media marketing" />
+            <div className="absolute bottom-2 right-2 flex gap-2 bg-card/80 dark:bg-card/60 p-1.5 rounded-lg shadow-md">
+              <Button variant="outline" size="icon" onClick={handleDownloadImage} title="Descargar Imagen" className="h-9 w-9 hover:bg-primary/10">
+                <Download className="h-4 w-4 text-primary" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={handleGenerateImage} title="Volver a Generar Imagen" className="h-9 w-9 hover:bg-primary/10">
+                <RefreshCw className="h-4 w-4 text-primary" />
+              </Button>
+            </div>
+          </>
         ) : post.imageError ? (
-           <div className="p-4 text-center text-xs text-destructive flex flex-col items-center justify-center">
+           <div className="p-4 text-center text-destructive flex flex-col items-center justify-center">
              <ImageIcon className="w-10 h-10 text-destructive mb-2" />
              Error al crear imagen.
-             <p className="text-muted-foreground text-xs mt-1">{post.imageError}</p>
+             <p className="text-muted-foreground text-xs mt-1 px-2">{post.imageError}</p>
+             <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateImage}
+                className="mt-3 bg-card hover:bg-accent hover:text-accent-foreground btn-transition"
+              >
+                <RefreshCw className="mr-2 h-4 w-4 text-accent" />
+                Volver a Intentar
+              </Button>
            </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-4 text-center">
@@ -101,7 +144,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
           ))}
         </div>
       </CardContent>
-      <CardFooter className="p-4 border-t border-slate-100">
+      <CardFooter className="p-4 border-t border-border">
         <Button
           variant="ghost"
           size="sm"
