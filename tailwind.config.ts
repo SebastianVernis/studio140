@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Nunito', 'sans-serif'],
-        headline: ['Nunito', 'sans-serif'],
+        body: ['Orbitron', 'sans-serif'],
+        headline: ['Orbitron', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
