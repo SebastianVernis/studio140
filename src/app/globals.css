@@ -8,94 +8,94 @@ body {
 
 @layer base {
   :root {
-    --background: 220 20% 96%;
-    --foreground: 220 25% 10%;
+    --background: 260 30% 5%; /* Dark deep purple */
+    --foreground: 260 10% 90%; /* Very light lavender/off-white */
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card: 260 25% 8%; /* Slightly lighter dark purple for cards */
+    --card-foreground: 260 10% 90%; /* Same as main foreground */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --popover: 260 25% 8%;
+    --popover-foreground: 260 10% 90%;
 
-    --primary: 225 70% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 200 100% 50%; /* Bright Cyan/Neon Blue */
+    --primary-foreground: 200 100% 5%; /* Very dark blue, for contrast on bright primary */
 
-    --secondary: 220 20% 90%;
-    --secondary-foreground: 220 25% 20%;
+    --secondary: 260 20% 15%; /* Darker purple, for secondary elements */
+    --secondary-foreground: 260 10% 80%; /* Lighter lavender */
 
-    --muted: 220 20% 85%;
-    --muted-foreground: 220 20% 45%; /* Adjusted for better readability like slate-500/slate-600 */
+    --muted: 260 15% 25%; /* Muted purple */
+    --muted-foreground: 260 10% 60%; /* Greyish lavender for muted text */
 
-    --accent: 195 70% 40%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 330 100% 55%; /* Bright Neon Pink/Magenta */
+    --accent-foreground: 330 100% 95%; /* Very light pink, for contrast on bright accent */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 90% 60%; /* Neon Red */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 220 20% 88%;
-    --input: 220 20% 88%;
-    --ring: 225 70% 55%; /* Primary color for focus rings */
+    --border: 260 20% 20%; /* Dark purple border */
+    --input: 260 20% 12%; /* Darker input background */
+    --ring: 200 100% 55%; /* Bright Cyan/Neon Blue for focus rings */
 
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: hsl(var(--primary));
+    --chart-2: hsl(var(--accent));
+    --chart-3: 150 100% 45%; /* Neon Green */
+    --chart-4: 60 100% 50%; /* Neon Yellow */
+    --chart-5: 280 100% 60%; /* Neon Purple */
     --radius: 0.5rem;
 
-    --sidebar-background: 220 20% 98%; /* Slightly off-white for sidebar if used */
-    --sidebar-foreground: 220 25% 20%;
-    --sidebar-primary: 225 70% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 90%;
-    --sidebar-accent-foreground: 220 25% 10%;
-    --sidebar-border: 220 20% 85%;
-    --sidebar-ring: 225 70% 55%;
+    --sidebar-background: 260 25% 6%; 
+    --sidebar-foreground: 260 10% 85%;
+    --sidebar-primary: hsl(var(--primary));
+    --sidebar-primary-foreground: hsl(var(--primary-foreground));
+    --sidebar-accent: 260 20% 12%;
+    --sidebar-accent-foreground: hsl(var(--accent));
+    --sidebar-border: 260 20% 15%;
+    --sidebar-ring: hsl(var(--ring));
   }
 
   .dark {
-    --background: 220 25% 6%;
-    --foreground: 220 20% 94%;
+    --background: 260 30% 3%; /* Even darker deep purple */
+    --foreground: 260 10% 95%; /* Slightly brighter off-white */
 
-    --card: 220 25% 10%;
-    --card-foreground: 220 20% 94%;
+    --card: 260 25% 7%; 
+    --card-foreground: 260 10% 95%;
 
-    --popover: 220 25% 6%;
-    --popover-foreground: 220 20% 94%;
+    --popover: 260 25% 7%;
+    --popover-foreground: 260 10% 95%;
 
-    --primary: 225 70% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 200 100% 50%; /* Bright Cyan/Neon Blue */
+    --primary-foreground: 200 100% 5%; /* Very dark blue */
 
-    --secondary: 220 15% 15%;
-    --secondary-foreground: 220 20% 94%;
+    --secondary: 260 20% 12%; 
+    --secondary-foreground: 260 10% 85%;
 
-    --muted: 220 15% 20%;
-    --muted-foreground: 220 20% 65%;
+    --muted: 260 15% 20%; 
+    --muted-foreground: 260 10% 65%;
 
-    --accent: 195 70% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 330 100% 55%; /* Bright Neon Pink/Magenta */
+    --accent-foreground: 330 100% 95%; /* Very light pink */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 90% 60%; /* Neon Red */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 220 15% 25%;
-    --input: 220 15% 25%;
-    --ring: 225 70% 55%;
+    --border: 260 20% 18%; 
+    --input: 260 20% 10%; 
+    --ring: 200 100% 55%;
     
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-1: hsl(var(--primary));
+    --chart-2: hsl(var(--accent));
+    --chart-3: 150 100% 45%; /* Neon Green */
+    --chart-4: 60 100% 50%; /* Neon Yellow */
+    --chart-5: 280 100% 60%; /* Neon Purple */
 
-    --sidebar-background: 220 25% 10%;
-    --sidebar-foreground: 220 20% 94%;
-    --sidebar-primary: 225 70% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 15%;
-    --sidebar-accent-foreground: 220 20% 94%;
-    --sidebar-border: 220 15% 25%;
-    --sidebar-ring: 225 70% 55%;
+    --sidebar-background: 260 25% 4%;
+    --sidebar-foreground: 260 10% 90%;
+    --sidebar-primary: hsl(var(--primary));
+    --sidebar-primary-foreground: hsl(var(--primary-foreground));
+    --sidebar-accent: 260 20% 10%;
+    --sidebar-accent-foreground: hsl(var(--accent));
+    --sidebar-border: 260 20% 12%;
+    --sidebar-ring: hsl(var(--ring));
   }
 }
 

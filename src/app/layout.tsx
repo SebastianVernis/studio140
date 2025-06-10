@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'SocialSpark - AI Content Creator',
-  description: 'Generate posts and images for your social media in seconds.',
+  title: 'Chispart Marketing - AI Content Creator',
+  description: 'Impulsa tu marketing con contenido IA y un estilo futurista.',
 };
 
 export default function RootLayout({

@@ -14,7 +14,7 @@ import { LoadingSpinner } from '@/components/loading-spinner';
 import { FileText, AlertCircle, Sparkles, Image as ImageIconLucide, Settings2 } from 'lucide-react';
 
 const platformOptions = ["Instagram", "Facebook", "Twitter (X)", "LinkedIn", "TikTok", "Genérico"];
-const toneOptions = ["Profesional", "Amistoso", "Divertido", "Persuasivo", "Inspirador"];
+const toneOptions = ["Profesional", "Amistoso", "Divertido", "Persuasivo", "Inspirador", "Futurista"];
 
 const imageTypeOptionsByPlatform: Record<string, {label: string, value: string}[]> = {
   Instagram: [
@@ -44,7 +44,7 @@ const imageTypeOptionsByPlatform: Record<string, {label: string, value: string}[
     { label: "Portada (1584x396)", value: "LinkedIn Cover Image (1584x396px)" },
     { label: "Foto de Perfil (400x400)", value: "LinkedIn Profile Picture (400x400px)" },
   ],
-  TikTok: [ // Primarily for aspect ratio guidance
+  TikTok: [ 
     { label: "Vertical (1080x1920)", value: "TikTok Vertical Image (1080x1920px)" },
     { label: "Foto de Perfil (200x200)", value: "TikTok Profile Picture (200x200px)" },
   ],
@@ -112,7 +112,7 @@ export default function HomePage() {
         imageType: selectedTextImageType,
       };
       setGeneratedPosts(prevPosts => [newPost, ...prevPosts]);
-      setTopic(''); // Optionally clear topic
+      setTopic(''); 
     } else if (result.error) {
       setTextError(result.error);
     }
@@ -184,8 +184,8 @@ export default function HomePage() {
     <div className="bg-background flex items-center justify-center min-h-screen p-4">
       <main className="w-full max-w-5xl mx-auto bg-card rounded-2xl shadow-xl p-6 md:p-8">
         <header className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground font-headline">Creador de Contenido y Multimedia IA</h1>
-          <p className="text-muted-foreground mt-2">Genera posts e imágenes para tus redes sociales en segundos.</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-primary font-headline tracking-wider">Chispart Marketing</h1>
+          <p className="text-muted-foreground mt-2 text-lg">Tu chispa creativa para contenido y multimedia IA.</p>
         </header>
 
         {textError && (
@@ -204,7 +204,7 @@ export default function HomePage() {
         )}
 
         <form onSubmit={handleSubmitText} className="mb-8">
-          <h2 className="text-xl font-semibold text-foreground mb-1">1. Generar Texto Publicitario</h2>
+          <h2 className="text-xl font-semibold text-accent mb-1">1. Generar Texto Publicitario</h2>
           <p className="text-sm text-muted-foreground mb-4">Define el tema, plataforma, tono y formato de imagen deseado.</p>
           
           <div className="mb-6">
@@ -215,7 +215,7 @@ export default function HomePage() {
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 className="w-full px-4 py-2 border-input rounded-lg focus:ring-2 focus:ring-ring"
-                placeholder="Ej: Zapatillas ecológicas para correr en montaña"
+                placeholder="Ej: Zapatillas cyber-punk autoajustables"
                 disabled={isLoadingText}
               />
           </div>
@@ -299,7 +299,7 @@ export default function HomePage() {
         <div className="border-t border-border my-8"></div>
 
         <form onSubmit={handleGenerateDirectImage} className="mb-8">
-           <h2 className="text-xl font-semibold text-foreground mb-1">2. Generar Imagen desde Prompt</h2>
+           <h2 className="text-xl font-semibold text-accent mb-1">2. Generar Imagen desde Prompt</h2>
            <p className="text-sm text-muted-foreground mb-4">Escribe tu idea, elige la plataforma y el formato para la imagen.</p>
           <div className="mb-6">
             <Label htmlFor="imagePrompt" className="block text-sm font-medium text-foreground mb-2">Tu Prompt Detallado para la Imagen</Label>
@@ -308,7 +308,7 @@ export default function HomePage() {
               value={imagePrompt}
               onChange={(e) => setImagePrompt(e.target.value)}
               className="w-full px-4 py-2 border-input rounded-lg focus:ring-2 focus:ring-ring min-h-[80px]"
-              placeholder="Ej: Un astronauta sonriente surfeando en una ola cósmica hecha de nebulosas de colores vibrantes, estilo synthwave, iluminación dramática."
+              placeholder="Ej: Un holograma brillante de un fénix resurgiendo de datos binarios, ciudad cyberpunk de fondo, lluvia de neón."
               disabled={isLoadingDirectImage}
             />
           </div>
@@ -395,7 +395,7 @@ export default function HomePage() {
           
           {generatedPosts.length > 0 && (
             <>
-            <h2 className="text-2xl font-semibold text-foreground mb-6 mt-10 text-center">Resultados Generados</h2>
+            <h2 className="text-2xl font-semibold text-primary mb-6 mt-10 text-center">Resultados Generados</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {generatedPosts.map(post => (
                 <ContentCard 
