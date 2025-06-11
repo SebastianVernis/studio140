@@ -306,7 +306,7 @@ export default function HomePage() {
             <Button 
               type="submit" 
               disabled={isLoadingText} 
-              className="bg-primary text-primary-foreground font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring btn-transition"
+              className="w-full sm:w-auto bg-primary text-primary-foreground font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring btn-transition"
               size="lg"
             >
               {isLoadingText ? (
@@ -353,7 +353,7 @@ export default function HomePage() {
                 src={uploadedBaseImagePreview} 
                 alt="Vista previa de imagen base" 
                 fill={true}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 160px) 100vw, 160px"
                 style={{objectFit: "contain"}}
                 className="rounded"
               />
@@ -421,7 +421,7 @@ export default function HomePage() {
             <Button 
               type="submit" 
               disabled={isLoadingDirectImage} 
-              className="bg-accent text-accent-foreground font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring btn-transition"
+              className="w-full sm:w-auto bg-accent text-accent-foreground font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring btn-transition"
               size="lg"
             >
               {isLoadingDirectImage ? (
@@ -484,3 +484,4 @@ export default function HomePage() {
   );
 }
 
+    
