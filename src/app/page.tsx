@@ -212,7 +212,7 @@ export default function HomePage() {
     <div className="bg-background flex items-center justify-center min-h-screen p-4">
       <main className="w-full max-w-5xl mx-auto bg-card rounded-2xl shadow-xl p-6 md:p-8">
         <header className="text-center mb-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary font-headline tracking-wider">Chispart Marketing</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-primary font-headline tracking-tight">CHISPART Marketing</h1>
           <p className="text-muted-foreground mt-2 text-lg">Tu chispa creativa para contenido y multimedia IA.</p>
         </header>
 
@@ -483,3 +483,4 @@ export default function HomePage() {
     </div>
   );
 }
+
