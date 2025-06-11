@@ -35,7 +35,8 @@ export interface ContentPost {
   imageError?: string;
   platform?: string;
   imageType?: string;
-  tone?: string; // Added for text regeneration
+  tone?: string;
+  language?: string;
 }
 
 interface ContentCardProps {
@@ -43,7 +44,7 @@ interface ContentCardProps {
   onImageGenerated: (postId: string, imageUrl: string) => void;
   onImageGenerationError: (postId: string, error: string) => void;
   onStartImageGeneration: (postId: string) => void;
-  onRegenerateText: (postId: string, originalTopic: string, platform: string, tone: string) => Promise<void>;
+  onRegenerateText: (postId: string, originalTopic: string, platform: string, tone: string, language: string) => Promise<void>;
 }
 
 export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onImageGenerationError, onStartImageGeneration, onRegenerateText }) => {
@@ -65,12 +66,12 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
   };
 
   const triggerRegenerateText = async () => {
-    if (!post.originalTopic || !post.platform || !post.tone) {
-        toast({ title: "Error", description: "Faltan datos (tema, plataforma o tono) para regenerar el texto.", variant: "destructive" });
+    if (!post.originalTopic || !post.platform || !post.tone || !post.language) {
+        toast({ title: "Error", description: "Faltan datos (tema, plataforma, tono o idioma) para regenerar el texto.", variant: "destructive" });
         return;
     }
     setIsRegeneratingText(true);
-    await onRegenerateText(post.id, post.originalTopic, post.platform, post.tone);
+    await onRegenerateText(post.id, post.originalTopic, post.platform, post.tone, post.language);
     setIsRegeneratingText(false);
   };
 
@@ -150,6 +151,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
                     <p>Plataforma: {post.platform || 'No especificada'}</p>
                     <p>Tipo de imagen: {post.imageType || 'No especificado'}</p>
                     <p>Tema original: {post.originalTopic}</p>
+                    {post.language && post.language !== 'N/A' && <p>Idioma: {post.language}</p>}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -179,6 +181,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
                             width={1920}
                             height={1080}
                             className="rounded-md object-contain w-full max-h-[80vh]"
+                            data-ai-hint="image preview"
                             />
                     </div>
                 </DialogContent>
@@ -274,7 +277,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
                 size="sm"
                 onClick={triggerRegenerateText}
                 className="w-full text-muted-foreground hover:bg-primary/10 hover:text-primary btn-transition"
-                disabled={isRegeneratingText}
+                disabled={isRegeneratingText || !post.language || post.language === 'N/A'}
             >
                 {isRegeneratingText ? (
                     <LoadingSpinner size={16} className="mr-2" />
@@ -288,3 +291,5 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     </Card>
   );
 };
+
+    

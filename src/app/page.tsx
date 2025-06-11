@@ -12,12 +12,20 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { generateTextAction, type GenerateTextActionResult, generateImageAction, type GenerateImageActionResult } from './actions';
 import { ContentCard, type ContentPost } from '@/components/content-card';
 import { LoadingSpinner } from '@/components/loading-spinner';
-import { FileText, AlertCircle, Sparkles, Image as ImageIconLucide, Settings2, UploadCloud, XCircle } from 'lucide-react';
+import { FileText, AlertCircle, Sparkles, Image as ImageIconLucide, Settings2, UploadCloud, XCircle, Languages } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 
 const platformOptions = ["Instagram", "Facebook", "Twitter (X)", "LinkedIn", "TikTok", "Genérico"];
 const toneOptions = ["Profesional", "Amistoso", "Divertido", "Persuasivo", "Inspirador", "Futurista"];
+const languageOptions = [
+  { label: "Español", value: "es" },
+  { label: "English (Inglés)", value: "en" },
+  { label: "中文 (Chino Mandarín)", value: "zh-CN" },
+  { label: "हिन्दी (Hindi)", value: "hi" },
+  { label: "العربية (Árabe)", value: "ar" },
+  { label: "Français (Francés)", value: "fr" },
+];
 
 const imageTypeOptionsByPlatform: Record<string, {label: string, value: string}[]> = {
   Instagram: [
@@ -28,7 +36,7 @@ const imageTypeOptionsByPlatform: Record<string, {label: string, value: string}[
     { label: "Foto de Perfil (320x320)", value: "Instagram Profile Picture (320x320px)" },
   ],
   Facebook: [
-    { label: "Post Cuadrado (1200x1200)", value: "Facebook Square Post (1200x1200px)" }, // Adjusted from 1200x630
+    { label: "Post Cuadrado (1200x1200)", value: "Facebook Square Post (1200x1200px)" },
     { label: "Post Horizontal (1200x630)", value: "Facebook Horizontal Post (1200x630px)" },
     { label: "Portada Página (820x312)", value: "Facebook Page Cover Photo (820x312px)" },
     { label: "Portada Evento (1200x628)", value: "Facebook Event Cover Photo (1200x628px)" },
@@ -64,6 +72,7 @@ export default function HomePage() {
   const [topic, setTopic] = useState('');
   const [selectedTextPlatform, setSelectedTextPlatform] = useState(platformOptions[0]);
   const [selectedTextTone, setSelectedTextTone] = useState(toneOptions[0]);
+  const [selectedLanguage, setSelectedLanguage] = useState(languageOptions[0].value);
   const [selectedTextImageType, setSelectedTextImageType] = useState(imageTypeOptionsByPlatform[platformOptions[0]]?.[0]?.value || imageTypeOptionsByPlatform.Genérico[0].value);
 
   const [isLoadingText, setIsLoadingText] = useState(false);
@@ -107,7 +116,8 @@ export default function HomePage() {
     const result: GenerateTextActionResult = await generateTextAction({
       topic,
       platform: selectedTextPlatform,
-      tone: selectedTextTone
+      tone: selectedTextTone,
+      language: selectedLanguage,
     });
 
     if (result.data) {
@@ -118,7 +128,8 @@ export default function HomePage() {
         originalTopic: topic,
         platform: selectedTextPlatform,
         imageType: selectedTextImageType,
-        tone: selectedTextTone, // Save tone for potential regeneration
+        tone: selectedTextTone,
+        language: selectedLanguage,
       };
       setGeneratedPosts(prevPosts => [newPost, ...prevPosts]);
       setTopic('');
@@ -128,11 +139,12 @@ export default function HomePage() {
     setIsLoadingText(false);
   };
 
-  const handleRegenerateText = async (postId: string, originalTopic: string, platform: string, tone: string) => {
+  const handleRegenerateText = async (postId: string, originalTopic: string, platform: string, tone: string, language: string) => {
     const result: GenerateTextActionResult = await generateTextAction({
         topic: originalTopic,
         platform: platform,
-        tone: tone
+        tone: tone,
+        language: language,
     });
 
     if (result.data) {
@@ -199,7 +211,8 @@ export default function HomePage() {
         imageError: undefined,
         platform: selectedDirectImagePlatform,
         imageType: selectedDirectImageType,
-        tone: 'N/A', // Not applicable for direct image prompts
+        tone: 'N/A', 
+        language: 'N/A',
       };
       setGeneratedPosts(prevPosts => [newPost, ...prevPosts]);
       setImagePrompt('');
@@ -260,7 +273,7 @@ export default function HomePage() {
 
         <form onSubmit={handleSubmitText} className="mb-8">
           <h2 className="text-xl font-semibold text-accent mb-1">1. Generar Texto Publicitario</h2>
-          <p className="text-sm text-muted-foreground mb-4">Define el tema, plataforma, tono y formato de imagen deseado.</p>
+          <p className="text-sm text-muted-foreground mb-4">Define el tema, plataforma, tono, idioma y formato de imagen deseado.</p>
 
           <div className="mb-6">
               <Label htmlFor="topic" className="block text-sm font-medium text-foreground mb-2">Tema o Producto Principal</Label>
@@ -275,7 +288,7 @@ export default function HomePage() {
               <p className="text-xs text-muted-foreground mt-1.5 ml-1">Ej: Zapatillas cyber-punk autoajustables</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div>
               <Label htmlFor="textPlatform" className="block text-sm font-medium text-foreground mb-2">Plataforma</Label>
               <Select
@@ -306,6 +319,23 @@ export default function HomePage() {
                 <SelectContent>
                   {toneOptions.map(opt => (
                     <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="language" className="block text-sm font-medium text-foreground mb-2">Idioma</Label>
+              <Select
+                value={selectedLanguage}
+                onValueChange={setSelectedLanguage}
+                disabled={isLoadingText}
+              >
+                <SelectTrigger id="language" className="w-full">
+                  <SelectValue placeholder="Selecciona idioma" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languageOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -383,6 +413,7 @@ export default function HomePage() {
                 sizes="(max-width: 160px) 100vw, 160px"
                 style={{objectFit: "contain"}}
                 className="rounded"
+                data-ai-hint="uploaded image preview"
               />
               <Button
                 variant="ghost"
@@ -511,3 +542,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
