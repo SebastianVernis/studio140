@@ -13,6 +13,8 @@ import { generateTextAction, type GenerateTextActionResult, generateImageAction,
 import { ContentCard, type ContentPost } from '@/components/content-card';
 import { LoadingSpinner } from '@/components/loading-spinner';
 import { FileText, AlertCircle, Sparkles, Image as ImageIconLucide, Settings2, UploadCloud, XCircle } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+
 
 const platformOptions = ["Instagram", "Facebook", "Twitter (X)", "LinkedIn", "TikTok", "Genérico"];
 const toneOptions = ["Profesional", "Amistoso", "Divertido", "Persuasivo", "Inspirador", "Futurista"];
@@ -26,7 +28,7 @@ const imageTypeOptionsByPlatform: Record<string, {label: string, value: string}[
     { label: "Foto de Perfil (320x320)", value: "Instagram Profile Picture (320x320px)" },
   ],
   Facebook: [
-    { label: "Post Cuadrado (1200x1200)", value: "Facebook Square Post (1200x1200px)" },
+    { label: "Post Cuadrado (1200x1200)", value: "Facebook Square Post (1200x1200px)" }, // Adjusted from 1200x630
     { label: "Post Horizontal (1200x630)", value: "Facebook Horizontal Post (1200x630px)" },
     { label: "Portada Página (820x312)", value: "Facebook Page Cover Photo (820x312px)" },
     { label: "Portada Evento (1200x628)", value: "Facebook Event Cover Photo (1200x628px)" },
@@ -45,7 +47,7 @@ const imageTypeOptionsByPlatform: Record<string, {label: string, value: string}[
     { label: "Portada (1584x396)", value: "LinkedIn Cover Image (1584x396px)" },
     { label: "Foto de Perfil (400x400)", value: "LinkedIn Profile Picture (400x400px)" },
   ],
-  TikTok: [ 
+  TikTok: [
     { label: "Vertical (1080x1920)", value: "TikTok Vertical Image (1080x1920px)" },
     { label: "Foto de Perfil (200x200)", value: "TikTok Profile Picture (200x200px)" },
   ],
@@ -58,11 +60,12 @@ const imageTypeOptionsByPlatform: Record<string, {label: string, value: string}[
 };
 
 export default function HomePage() {
+  const { toast } = useToast();
   const [topic, setTopic] = useState('');
   const [selectedTextPlatform, setSelectedTextPlatform] = useState(platformOptions[0]);
   const [selectedTextTone, setSelectedTextTone] = useState(toneOptions[0]);
   const [selectedTextImageType, setSelectedTextImageType] = useState(imageTypeOptionsByPlatform[platformOptions[0]]?.[0]?.value || imageTypeOptionsByPlatform.Genérico[0].value);
-  
+
   const [isLoadingText, setIsLoadingText] = useState(false);
   const [textError, setTextError] = useState<string | null>(null);
   const [generatedPosts, setGeneratedPosts] = useState<ContentPost[]>([]);
@@ -72,7 +75,7 @@ export default function HomePage() {
   const [selectedDirectImageType, setSelectedDirectImageType] = useState(imageTypeOptionsByPlatform[platformOptions[0]]?.[0]?.value || imageTypeOptionsByPlatform.Genérico[0].value);
   const [isLoadingDirectImage, setIsLoadingDirectImage] = useState(false);
   const [directImageError, setDirectImageError] = useState<string | null>(null);
-  
+
   const [currentTextImageTypes, setCurrentTextImageTypes] = useState(imageTypeOptionsByPlatform[selectedTextPlatform] || imageTypeOptionsByPlatform.Genérico);
   const [currentDirectImageTypes, setCurrentDirectImageTypes] = useState(imageTypeOptionsByPlatform[selectedDirectImagePlatform] || imageTypeOptionsByPlatform.Genérico);
 
@@ -101,10 +104,10 @@ export default function HomePage() {
     setIsLoadingText(true);
     setTextError(null);
 
-    const result: GenerateTextActionResult = await generateTextAction({ 
-      topic, 
-      platform: selectedTextPlatform, 
-      tone: selectedTextTone 
+    const result: GenerateTextActionResult = await generateTextAction({
+      topic,
+      platform: selectedTextPlatform,
+      tone: selectedTextTone
     });
 
     if (result.data) {
@@ -115,14 +118,37 @@ export default function HomePage() {
         originalTopic: topic,
         platform: selectedTextPlatform,
         imageType: selectedTextImageType,
+        tone: selectedTextTone, // Save tone for potential regeneration
       };
       setGeneratedPosts(prevPosts => [newPost, ...prevPosts]);
-      setTopic(''); 
+      setTopic('');
     } else if (result.error) {
       setTextError(result.error);
     }
     setIsLoadingText(false);
   };
+
+  const handleRegenerateText = async (postId: string, originalTopic: string, platform: string, tone: string) => {
+    const result: GenerateTextActionResult = await generateTextAction({
+        topic: originalTopic,
+        platform: platform,
+        tone: tone
+    });
+
+    if (result.data) {
+        setGeneratedPosts(prevPosts =>
+            prevPosts.map(p =>
+                p.id === postId
+                    ? { ...p, mainText: result.data.main_text, hashtags: result.data.hashtags }
+                    : p
+            )
+        );
+        toast({ title: "Texto Regenerado", description: "El contenido del texto ha sido actualizado." });
+    } else if (result.error) {
+        toast({ title: "Error al Regenerar Texto", description: result.error, variant: "destructive" });
+    }
+  };
+
 
   const handleBaseImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -141,7 +167,7 @@ export default function HomePage() {
     setUploadedBaseImage(null);
     setUploadedBaseImagePreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''; 
+      fileInputRef.current.value = '';
     }
   };
 
@@ -155,7 +181,7 @@ export default function HomePage() {
     setIsLoadingDirectImage(true);
     setDirectImageError(null);
 
-    const result: GenerateImageActionResult = await generateImageAction({ 
+    const result: GenerateImageActionResult = await generateImageAction({
       topic: imagePrompt,
       platform: selectedDirectImagePlatform,
       imageType: selectedDirectImageType,
@@ -166,16 +192,17 @@ export default function HomePage() {
       const newPost: ContentPost = {
         id: crypto.randomUUID(),
         mainText: `Prompt: ${imagePrompt}${uploadedBaseImagePreview ? ' (con imagen base)' : ''}`,
-        hashtags: [], 
-        originalTopic: imagePrompt, 
+        hashtags: [],
+        originalTopic: imagePrompt,
         imageUrl: result.data.imageUrl,
-        isGeneratingImage: false, 
+        isGeneratingImage: false,
         imageError: undefined,
         platform: selectedDirectImagePlatform,
         imageType: selectedDirectImageType,
+        tone: 'N/A', // Not applicable for direct image prompts
       };
       setGeneratedPosts(prevPosts => [newPost, ...prevPosts]);
-      setImagePrompt(''); 
+      setImagePrompt('');
       removeBaseImage();
     } else if (result.error) {
       setDirectImageError(result.error);
@@ -191,7 +218,7 @@ export default function HomePage() {
       )
     );
   };
-  
+
   const handleImageGenerationError = (postId: string, errorMsg: string) => {
     setGeneratedPosts(prevPosts =>
       prevPosts.map(p =>
@@ -234,7 +261,7 @@ export default function HomePage() {
         <form onSubmit={handleSubmitText} className="mb-8">
           <h2 className="text-xl font-semibold text-accent mb-1">1. Generar Texto Publicitario</h2>
           <p className="text-sm text-muted-foreground mb-4">Define el tema, plataforma, tono y formato de imagen deseado.</p>
-          
+
           <div className="mb-6">
               <Label htmlFor="topic" className="block text-sm font-medium text-foreground mb-2">Tema o Producto Principal</Label>
               <Input
@@ -251,9 +278,9 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div>
               <Label htmlFor="textPlatform" className="block text-sm font-medium text-foreground mb-2">Plataforma</Label>
-              <Select 
-                value={selectedTextPlatform} 
-                onValueChange={setSelectedTextPlatform} 
+              <Select
+                value={selectedTextPlatform}
+                onValueChange={setSelectedTextPlatform}
                 disabled={isLoadingText}
               >
                 <SelectTrigger id="textPlatform" className="w-full">
@@ -268,9 +295,9 @@ export default function HomePage() {
             </div>
             <div>
               <Label htmlFor="textTone" className="block text-sm font-medium text-foreground mb-2">Tono de Voz</Label>
-              <Select 
-                value={selectedTextTone} 
-                onValueChange={setSelectedTextTone} 
+              <Select
+                value={selectedTextTone}
+                onValueChange={setSelectedTextTone}
                 disabled={isLoadingText}
               >
                 <SelectTrigger id="textTone" className="w-full">
@@ -285,9 +312,9 @@ export default function HomePage() {
             </div>
             <div>
               <Label htmlFor="textImageType" className="block text-sm font-medium text-foreground mb-2">Formato de Imagen</Label>
-              <Select 
-                value={selectedTextImageType} 
-                onValueChange={setSelectedTextImageType} 
+              <Select
+                value={selectedTextImageType}
+                onValueChange={setSelectedTextImageType}
                 disabled={isLoadingText || currentTextImageTypes.length === 0}
               >
                 <SelectTrigger id="textImageType" className="w-full">
@@ -303,9 +330,9 @@ export default function HomePage() {
           </div>
 
           <div className="text-center">
-            <Button 
-              type="submit" 
-              disabled={isLoadingText} 
+            <Button
+              type="submit"
+              disabled={isLoadingText}
               className="w-full sm:w-auto bg-primary text-primary-foreground font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring btn-transition"
               size="lg"
             >
@@ -323,13 +350,13 @@ export default function HomePage() {
             </Button>
           </div>
         </form>
-        
+
         <div className="border-t border-border my-8"></div>
 
         <form onSubmit={handleGenerateDirectImage} className="mb-8">
            <h2 className="text-xl font-semibold text-accent mb-1">2. Generar Imagen desde Prompt</h2>
            <p className="text-sm text-muted-foreground mb-4">Escribe tu idea, sube una imagen base (opcional), elige plataforma y formato.</p>
-          
+
           <div className="mb-4">
             <Label htmlFor="baseImageUpload" className="block text-sm font-medium text-foreground mb-2">
               Imagen Base (Opcional)
@@ -349,17 +376,17 @@ export default function HomePage() {
 
           {uploadedBaseImagePreview && (
             <div className="mb-4 relative w-40 h-40 border border-input rounded-md p-1">
-              <Image 
-                src={uploadedBaseImagePreview} 
-                alt="Vista previa de imagen base" 
+              <Image
+                src={uploadedBaseImagePreview}
+                alt="Vista previa de imagen base"
                 fill={true}
                 sizes="(max-width: 160px) 100vw, 160px"
                 style={{objectFit: "contain"}}
                 className="rounded"
               />
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="absolute -top-3 -right-3 h-7 w-7 bg-card hover:bg-destructive text-destructive-foreground hover:text-destructive-foreground rounded-full"
                 onClick={removeBaseImage}
                 title="Quitar imagen base"
@@ -384,9 +411,9 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <Label htmlFor="directImagePlatform" className="block text-sm font-medium text-foreground mb-2">Plataforma</Label>
-              <Select 
-                value={selectedDirectImagePlatform} 
-                onValueChange={setSelectedDirectImagePlatform} 
+              <Select
+                value={selectedDirectImagePlatform}
+                onValueChange={setSelectedDirectImagePlatform}
                 disabled={isLoadingDirectImage}
               >
                 <SelectTrigger id="directImagePlatform" className="w-full">
@@ -401,9 +428,9 @@ export default function HomePage() {
             </div>
             <div>
               <Label htmlFor="directImageType" className="block text-sm font-medium text-foreground mb-2">Formato de Imagen</Label>
-              <Select 
-                value={selectedDirectImageType} 
-                onValueChange={setSelectedDirectImageType} 
+              <Select
+                value={selectedDirectImageType}
+                onValueChange={setSelectedDirectImageType}
                 disabled={isLoadingDirectImage || currentDirectImageTypes.length === 0}
               >
                 <SelectTrigger id="directImageType" className="w-full">
@@ -418,9 +445,9 @@ export default function HomePage() {
             </div>
           </div>
            <div className="text-center mt-6">
-            <Button 
-              type="submit" 
-              disabled={isLoadingDirectImage} 
+            <Button
+              type="submit"
+              disabled={isLoadingDirectImage}
               className="w-full sm:w-auto bg-accent text-accent-foreground font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring btn-transition"
               size="lg"
             >
@@ -440,13 +467,13 @@ export default function HomePage() {
         </form>
 
         <div id="results">
-          {(isLoadingText && generatedPosts.length === 0) && ( 
+          {(isLoadingText && generatedPosts.length === 0) && (
             <div className="flex flex-col justify-center items-center py-8 text-center">
               <LoadingSpinner size={40} />
               <p className="ml-4 text-muted-foreground mt-3">Generando ideas creativas...</p>
             </div>
           )}
-           {(isLoadingDirectImage && generatedPosts.length === 0) && ( 
+           {(isLoadingDirectImage && generatedPosts.length === 0) && (
             <div className="flex flex-col justify-center items-center py-8 text-center">
               <LoadingSpinner size={40} />
               <p className="ml-4 text-muted-foreground mt-3">Dando vida a tu prompt...</p>
@@ -461,18 +488,19 @@ export default function HomePage() {
               <p className="text-muted-foreground text-sm">Configura tus generadores y tus resultados aparecerán aquí.</p>
             </div>
           )}
-          
+
           {generatedPosts.length > 0 && (
             <>
             <h2 className="text-2xl font-semibold text-primary mb-6 mt-10 text-center">Resultados Generados</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {generatedPosts.map(post => (
-                <ContentCard 
-                  key={post.id} 
-                  post={post} 
+                <ContentCard
+                  key={post.id}
+                  post={post}
                   onImageGenerated={handleImageGenerated}
                   onImageGenerationError={handleImageGenerationError}
                   onStartImageGeneration={handleStartImageGeneration}
+                  onRegenerateText={handleRegenerateText}
                 />
               ))}
             </div>
@@ -483,5 +511,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    

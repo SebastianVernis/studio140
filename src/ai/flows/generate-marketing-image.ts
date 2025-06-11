@@ -49,15 +49,18 @@ const generateMarketingImageFlow = ai.defineFlow(
     outputSchema: GenerateMarketingImageOutputSchema,
   },
   async (input) => {
-    let textPrompt = `Generate an illustrative and visually appealing marketing image that complements the topic: "${input.topic}".`;
+    let textPrompt = `Generate a sophisticated and conceptually rich marketing image for the topic: "${input.topic}".`;
+    textPrompt += ` The image should be visually engaging and thought-provoking, acting as a strong visual anchor for a text post.`;
+    textPrompt += ` Consider a dynamic composition, symbolic elements, or a unique artistic interpretation related to the topic.`;
+
     if (input.platform && input.imageType) {
-      textPrompt += ` The image should be suitable for ${input.platform} as a ${input.imageType}.`;
+      textPrompt += ` Optimize for ${input.platform}, specifically for a ${input.imageType} format.`;
     } else if (input.platform) {
-      textPrompt += ` The image should be suitable for ${input.platform}.`;
+      textPrompt += ` Optimize for ${input.platform}.`;
     } else if (input.imageType) {
       textPrompt += ` The image should be a ${input.imageType}.`;
     }
-    textPrompt += ` The image should act as a visual accompaniment to a text post on this topic, enhancing its message rather than literally depicting it. Aim for a high-quality, photorealistic style suitable for social media.`;
+    textPrompt += ` Aim for a high-quality, professional, and modern aesthetic. Avoid overly simplistic or generic representations. Strive for an image that sparks curiosity and complements the core message of the topic.`;
 
     const promptSegments: any[] = [];
 
@@ -89,3 +92,4 @@ const generateMarketingImageFlow = ai.defineFlow(
     return {imageUrl: media.url!};
   }
 );
+

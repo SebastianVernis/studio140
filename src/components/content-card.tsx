@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { FC } from 'react';
+import { type FC, useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,24 +9,33 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { generateImageAction } from '@/app/actions';
 import { LoadingSpinner } from './loading-spinner';
-import { ImageIcon, Copy, Sparkles, Download, RefreshCw, Info } from 'lucide-react';
+import { ImageIcon, Copy, Sparkles, Download, RefreshCw, Info, Eye, RefreshCcw, FilePenLine } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogClose,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 
 export interface ContentPost {
   id: string;
   mainText: string;
   hashtags: string[];
-  originalTopic: string; 
+  originalTopic: string;
   imageUrl?: string;
   isGeneratingImage?: boolean;
   imageError?: string;
-  platform?: string; 
-  imageType?: string; 
+  platform?: string;
+  imageType?: string;
+  tone?: string; // Added for text regeneration
 }
 
 interface ContentCardProps {
@@ -34,18 +43,20 @@ interface ContentCardProps {
   onImageGenerated: (postId: string, imageUrl: string) => void;
   onImageGenerationError: (postId: string, error: string) => void;
   onStartImageGeneration: (postId: string) => void;
+  onRegenerateText: (postId: string, originalTopic: string, platform: string, tone: string) => Promise<void>;
 }
 
-export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onImageGenerationError, onStartImageGeneration }) => {
+export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onImageGenerationError, onStartImageGeneration, onRegenerateText }) => {
   const { toast } = useToast();
+  const [isRegeneratingText, setIsRegeneratingText] = useState(false);
 
   const handleGenerateImage = async () => {
     onStartImageGeneration(post.id);
-    const result = await generateImageAction({ 
+    const result = await generateImageAction({
       topic: post.originalTopic,
-      platform: post.platform, 
-      imageType: post.imageType, 
-    }); 
+      platform: post.platform,
+      imageType: post.imageType,
+    });
     if (result.data?.imageUrl) {
       onImageGenerated(post.id, result.data.imageUrl);
     } else {
@@ -53,21 +64,21 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     }
   };
 
+  const triggerRegenerateText = async () => {
+    if (!post.originalTopic || !post.platform || !post.tone) {
+        toast({ title: "Error", description: "Faltan datos (tema, plataforma o tono) para regenerar el texto.", variant: "destructive" });
+        return;
+    }
+    setIsRegeneratingText(true);
+    await onRegenerateText(post.id, post.originalTopic, post.platform, post.tone);
+    setIsRegeneratingText(false);
+  };
+
   const handleDownloadImage = () => {
     if (!post.imageUrl) return;
     const link = document.createElement('a');
     link.href = post.imageUrl;
-    
-    let filename = "chispart-image.png";
-    try {
-        const topicPart = post.originalTopic.substring(0, 30).replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        const platformPart = post.platform ? post.platform.toLowerCase().replace(/\s/g, '_') : 'generic';
-        const typePart = post.imageType ? post.imageType.split('(')[0].trim().toLowerCase().replace(/\s/g, '_') : 'image';
-        filename = `chispart_${topicPart}_${platformPart}_${typePart}.png`;
-    } catch (e) {
-        // fallback to generic name if parsing fails
-    }
-    link.download = filename;
+    link.download = "chispart-image.png";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -78,6 +89,14 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
   };
 
   const handleCopyToClipboard = () => {
+    if (post.mainText.startsWith('Prompt:')) {
+        toast({
+            title: 'Información',
+            description: 'Este es un prompt de imagen, no un texto publicitario.',
+            variant: 'default',
+        });
+        return;
+    }
     const textToCopy = `${post.mainText}\n\n${post.hashtags.map(tag => `#${tag}`).join(' ')}`;
     navigator.clipboard.writeText(textToCopy)
       .then(() => {
@@ -95,8 +114,10 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
         });
       });
   };
-  
+
   const displayImageType = post.imageType?.split('(')[0]?.trim() || 'Imagen';
+  const isDirectImagePost = post.mainText.startsWith('Prompt:');
+
 
   return (
     <Card className="flex flex-col h-full overflow-hidden shadow-lg rounded-2xl">
@@ -108,13 +129,13 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
           </div>
         ) : post.imageUrl ? (
           <>
-            <Image 
-              src={post.imageUrl} 
-              alt={`Generated image for: ${post.originalTopic.substring(0, 50)} (${displayImageType})`} 
+            <Image
+              src={post.imageUrl}
+              alt={`Generated image for: ${post.originalTopic.substring(0, 50)} (${displayImageType})`}
               fill={true}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               style={{objectFit: "cover"}}
-              data-ai-hint={`${post.platform || 'social'} ${post.imageType || 'media marketing'}`.toLowerCase().substring(0,30)} 
+              data-ai-hint={`${post.platform || 'social'} ${post.imageType || 'media marketing'}`.toLowerCase().substring(0,30)}
             />
             <div className="absolute top-2 left-2 bg-card/80 dark:bg-card/60 p-1.5 rounded-lg shadow-md text-xs text-foreground">
               <TooltipProvider>
@@ -134,12 +155,54 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
               </TooltipProvider>
             </div>
             <div className="absolute bottom-2 right-2 flex gap-2 bg-card/80 dark:bg-card/60 p-1.5 rounded-lg shadow-md">
-              <Button variant="outline" size="icon" onClick={handleDownloadImage} title="Descargar Imagen" className="h-9 w-9 hover:bg-primary/10">
-                <Download className="h-4 w-4 text-primary" />
-              </Button>
-              <Button variant="outline" size="icon" onClick={handleGenerateImage} title="Volver a Generar Imagen" className="h-9 w-9 hover:bg-primary/10">
-                <RefreshCw className="h-4 w-4 text-primary" />
-              </Button>
+               <Dialog>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" size="icon" title="Vista Previa" className="h-9 w-9 hover:bg-primary/10">
+                                    <Eye className="h-4 w-4 text-primary" />
+                                </Button>
+                            </DialogTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="top"><p>Vista Previa</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <DialogContent className="max-w-screen-lg p-4">
+                    <DialogHeader>
+                        <DialogTitle>Vista Previa: {post.originalTopic}</DialogTitle>
+                    </DialogHeader>
+                    <div className="relative w-full mt-2">
+                        <Image
+                            src={post.imageUrl}
+                            alt={`Vista previa de: ${post.originalTopic}`}
+                            width={1920}
+                            height={1080}
+                            className="rounded-md object-contain w-full max-h-[80vh]"
+                            />
+                    </div>
+                </DialogContent>
+              </Dialog>
+              <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="outline" size="icon" onClick={handleDownloadImage} title="Descargar Imagen" className="h-9 w-9 hover:bg-primary/10">
+                            <Download className="h-4 w-4 text-primary" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top"><p>Descargar Imagen</p></TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                 <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="outline" size="icon" onClick={handleGenerateImage} title="Volver a Generar Imagen" className="h-9 w-9 hover:bg-primary/10">
+                            <RefreshCw className="h-4 w-4 text-primary" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top"><p>Regenerar Imagen</p></TooltipContent>
+                 </Tooltip>
+              </TooltipProvider>
             </div>
           </>
         ) : post.imageError ? (
@@ -176,8 +239,15 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
         )}
       </CardHeader>
       <CardContent className="p-4 flex-grow flex flex-col">
-        <p className="text-sm text-foreground mb-4 whitespace-pre-wrap flex-grow">{post.mainText}</p>
-        {post.hashtags && post.hashtags.length > 0 && (
+        {isRegeneratingText ? (
+             <div className="flex flex-col items-center justify-center flex-grow">
+                <LoadingSpinner size={24} />
+                <p className="text-xs text-muted-foreground mt-2">Regenerando texto...</p>
+            </div>
+        ) : (
+            <p className="text-sm text-foreground mb-4 whitespace-pre-wrap flex-grow">{post.mainText}</p>
+        )}
+        {post.hashtags && post.hashtags.length > 0 && !isDirectImagePost && (
           <div className="flex flex-wrap gap-2">
             {post.hashtags.map((tag, index) => (
               <Badge key={index} variant="secondary" className="text-accent-foreground bg-accent/20 hover:bg-accent/30">
@@ -187,17 +257,33 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
           </div>
         )}
       </CardContent>
-      <CardFooter className="p-4 border-t border-border">
+      <CardFooter className="p-4 border-t border-border flex flex-col sm:flex-row gap-2">
         <Button
           variant="ghost"
           size="sm"
           onClick={handleCopyToClipboard}
           className="w-full text-muted-foreground hover:bg-primary/10 hover:text-primary btn-transition"
-          disabled={!post.mainText || post.mainText.startsWith('Prompt:')}
+          disabled={isDirectImagePost || isRegeneratingText}
         >
           <Copy className="mr-2 h-4 w-4" />
-          Copiar Texto Publicitario
+          Copiar Texto
         </Button>
+        {!isDirectImagePost && (
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={triggerRegenerateText}
+                className="w-full text-muted-foreground hover:bg-primary/10 hover:text-primary btn-transition"
+                disabled={isRegeneratingText}
+            >
+                {isRegeneratingText ? (
+                    <LoadingSpinner size={16} className="mr-2" />
+                ) : (
+                    <RefreshCcw className="mr-2 h-4 w-4" />
+                )}
+                Regenerar Texto
+            </Button>
+        )}
       </CardFooter>
     </Card>
   );
