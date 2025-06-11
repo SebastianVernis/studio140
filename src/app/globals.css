@@ -8,33 +8,33 @@ body {
 
 @layer base {
   :root {
-    --background: 260 20% 20%; /* Lighter deep purple */
-    --foreground: 260 5% 88%;  /* Light lavender */
+    --background: 0 0% 98%; /* Almost white */
+    --foreground: 240 10% 3.9%; /* Very dark blue/black for text */
 
-    --card: 260 20% 25%; /* Slightly lighter card */
-    --card-foreground: 260 5% 88%;
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 240 10% 3.9%;
 
-    --popover: 260 20% 25%;
-    --popover-foreground: 260 5% 88%;
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 240 10% 3.9%;
 
     --primary: 200 100% 50%; /* Bright Cyan/Neon Blue */
-    --primary-foreground: 200 100% 5%; 
+    --primary-foreground: 200 100% 95%; /* Very light cyan/white for text on primary */
 
-    --secondary: 260 15% 30%; /* Darker purple, for secondary elements */
-    --secondary-foreground: 260 5% 80%; 
+    --secondary: 240 4.8% 95.9%; /* Light grey */
+    --secondary-foreground: 240 5.9% 10%; /* Darker grey for text on secondary */
 
-    --muted: 260 10% 40%; /* Muted purple */
-    --muted-foreground: 260 10% 65%; /* Greyish lavender for muted text */
+    --muted: 240 4.8% 95.9%; /* Light grey (same as secondary for subtlety) */
+    --muted-foreground: 240 3.8% 46.1%; /* Medium grey for muted text */
 
     --accent: 330 100% 55%; /* Bright Neon Pink/Magenta */
-    --accent-foreground: 330 100% 95%; 
+    --accent-foreground: 330 100% 95%; /* Very light pink/white for text on accent */
 
-    --destructive: 0 90% 60%; /* Neon Red */
-    --destructive-foreground: 0 0% 100%; /* White */
+    --destructive: 0 84.2% 60.2%; /* Vibrant Red */
+    --destructive-foreground: 0 0% 98%; /* Light text for destructive elements */
 
-    --border: 260 15% 35%; /* Dark purple border */
-    --input: 260 15% 28%; /* Darker input background */
-    --ring: 200 100% 55%; 
+    --border: 240 5.9% 90%; /* Light grey border */
+    --input: 240 5.9% 90%; /* Light grey for input borders (bg will be --background) */
+    --ring: 200 100% 55%; /* Primary color for focus rings */
 
     --chart-1: hsl(var(--primary));
     --chart-2: hsl(var(--accent));
@@ -43,44 +43,45 @@ body {
     --chart-5: 280 100% 60%; /* Neon Purple */
     --radius: 0.5rem;
 
-    --sidebar-background: 260 20% 22%; 
-    --sidebar-foreground: 260 5% 85%;
+    --sidebar-background: 0 0% 96%; 
+    --sidebar-foreground: 240 10% 3.9%;
     --sidebar-primary: hsl(var(--primary));
     --sidebar-primary-foreground: hsl(var(--primary-foreground));
-    --sidebar-accent: 260 15% 28%;
-    --sidebar-accent-foreground: hsl(var(--accent));
-    --sidebar-border: 260 15% 32%;
+    --sidebar-accent: 240 4.8% 93%; /* Light grey for sidebar item hover/selection */
+    --sidebar-accent-foreground: 240 5.9% 10%; /* Dark text for sidebar accent */
+    --sidebar-border: 240 5.9% 88%;
     --sidebar-ring: hsl(var(--ring));
   }
 
   .dark {
-    --background: 260 30% 5%; /* Original Dark deep purple */
-    --foreground: 260 10% 90%; /* Original Very light lavender/off-white */
+    /* Previous default theme, now dark mode */
+    --background: 260 20% 20%; 
+    --foreground: 260 5% 88%;  
 
-    --card: 260 25% 8%; 
-    --card-foreground: 260 10% 90%;
+    --card: 260 20% 25%; 
+    --card-foreground: 260 5% 88%;
 
-    --popover: 260 25% 8%;
-    --popover-foreground: 260 10% 90%;
+    --popover: 260 20% 25%;
+    --popover-foreground: 260 5% 88%;
 
     --primary: 200 100% 50%; 
     --primary-foreground: 200 100% 5%; 
 
-    --secondary: 260 20% 15%; 
-    --secondary-foreground: 260 10% 80%;
+    --secondary: 260 15% 30%; 
+    --secondary-foreground: 260 5% 80%; 
 
-    --muted: 260 15% 25%; 
-    --muted-foreground: 260 10% 60%;
+    --muted: 260 10% 40%; 
+    --muted-foreground: 260 10% 65%; 
 
     --accent: 330 100% 55%; 
-    --accent-foreground: 330 100% 95%; 
+    --accent-foreground: 330 100% 95%;  /* Kept light for consistency on bright accent */
 
     --destructive: 0 90% 60%; 
     --destructive-foreground: 0 0% 100%;
 
-    --border: 260 20% 20%; 
-    --input: 260 20% 12%; 
-    --ring: 200 100% 55%;
+    --border: 260 15% 35%; 
+    --input: 260 15% 28%; 
+    --ring: 200 100% 55%; 
     
     --chart-1: hsl(var(--primary));
     --chart-2: hsl(var(--accent));
@@ -88,13 +89,13 @@ body {
     --chart-4: 60 100% 50%; 
     --chart-5: 280 100% 60%; 
 
-    --sidebar-background: 260 25% 6%;
-    --sidebar-foreground: 260 10% 85%;
+    --sidebar-background: 260 20% 22%;
+    --sidebar-foreground: 260 5% 85%;
     --sidebar-primary: hsl(var(--primary));
     --sidebar-primary-foreground: hsl(var(--primary-foreground));
-    --sidebar-accent: 260 20% 12%;
+    --sidebar-accent: 260 15% 28%;
     --sidebar-accent-foreground: hsl(var(--accent));
-    --sidebar-border: 260 20% 15%;
+    --sidebar-border: 260 15% 32%;
     --sidebar-ring: hsl(var(--ring));
   }
 }
