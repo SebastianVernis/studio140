@@ -43,8 +43,8 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     onStartImageGeneration(post.id);
     const result = await generateImageAction({ 
       topic: post.originalTopic,
-      platform: post.platform, // Use stored platform
-      imageType: post.imageType, // Use stored image type
+      platform: post.platform, 
+      imageType: post.imageType, 
     }); 
     if (result.data?.imageUrl) {
       onImageGenerated(post.id, result.data.imageUrl);
@@ -58,13 +58,12 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     const link = document.createElement('a');
     link.href = post.imageUrl;
     
-    let filename = "social-spark-image.png";
+    let filename = "chispart-image.png";
     try {
-        // Attempt to create a more descriptive filename
         const topicPart = post.originalTopic.substring(0, 30).replace(/[^a-z0-9]/gi, '_').toLowerCase();
         const platformPart = post.platform ? post.platform.toLowerCase().replace(/\s/g, '_') : 'generic';
         const typePart = post.imageType ? post.imageType.split('(')[0].trim().toLowerCase().replace(/\s/g, '_') : 'image';
-        filename = `socialspark_${topicPart}_${platformPart}_${typePart}.png`;
+        filename = `chispart_${topicPart}_${platformPart}_${typePart}.png`;
     } catch (e) {
         // fallback to generic name if parsing fails
     }
@@ -101,7 +100,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
 
   return (
     <Card className="flex flex-col h-full overflow-hidden shadow-lg rounded-2xl">
-      <CardHeader className="p-0 aspect-video w-full relative bg-slate-50 dark:bg-slate-800 border-b border-border flex items-center justify-center">
+      <CardHeader className="p-0 aspect-video w-full relative bg-muted/20 dark:bg-muted/30 border-b border-border flex items-center justify-center">
         {post.isGeneratingImage ? (
           <div className="flex flex-col items-center justify-center h-full">
             <LoadingSpinner size={32} borderTopColor="border-t-primary" />
@@ -109,7 +108,14 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
           </div>
         ) : post.imageUrl ? (
           <>
-            <Image src={post.imageUrl} alt={`Generated image for: ${post.originalTopic.substring(0, 50)} (${displayImageType})`} layout="fill" objectFit="cover" data-ai-hint={`${post.platform || 'social'} ${post.imageType || 'media marketing'}`.toLowerCase().substring(0,30)} />
+            <Image 
+              src={post.imageUrl} 
+              alt={`Generated image for: ${post.originalTopic.substring(0, 50)} (${displayImageType})`} 
+              fill={true}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{objectFit: "cover"}}
+              data-ai-hint={`${post.platform || 'social'} ${post.imageType || 'media marketing'}`.toLowerCase().substring(0,30)} 
+            />
             <div className="absolute top-2 left-2 bg-card/80 dark:bg-card/60 p-1.5 rounded-lg shadow-md text-xs text-foreground">
               <TooltipProvider>
                 <Tooltip>

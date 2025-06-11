@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Orbitron', 'sans-serif'],
-        headline: ['Orbitron', 'sans-serif'],
+        body: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+        headline: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

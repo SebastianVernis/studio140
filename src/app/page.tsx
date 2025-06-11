@@ -141,7 +141,7 @@ export default function HomePage() {
     setUploadedBaseImage(null);
     setUploadedBaseImagePreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // Reset file input
+      fileInputRef.current.value = ''; 
     }
   };
 
@@ -243,9 +243,9 @@ export default function HomePage() {
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 className="w-full px-4 py-2 border-input rounded-lg focus:ring-2 focus:ring-ring"
-                placeholder="Ej: Zapatillas cyber-punk autoajustables"
                 disabled={isLoadingText}
               />
+              <p className="text-xs text-muted-foreground mt-1.5 ml-1">Ej: Zapatillas cyber-punk autoajustables</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -352,8 +352,9 @@ export default function HomePage() {
               <Image 
                 src={uploadedBaseImagePreview} 
                 alt="Vista previa de imagen base" 
-                layout="fill" 
-                objectFit="contain"
+                fill={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{objectFit: "contain"}}
                 className="rounded"
               />
               <Button 
@@ -376,9 +377,9 @@ export default function HomePage() {
               value={imagePrompt}
               onChange={(e) => setImagePrompt(e.target.value)}
               className="w-full px-4 py-2 border-input rounded-lg focus:ring-2 focus:ring-ring min-h-[80px]"
-              placeholder="Ej: Un holograma brillante de un fénix resurgiendo de datos binarios, ciudad cyberpunk de fondo, lluvia de neón."
               disabled={isLoadingDirectImage}
             />
+             <p className="text-xs text-muted-foreground mt-1.5 ml-1">Ej: Un holograma brillante de un fénix resurgiendo de datos binarios, ciudad cyberpunk de fondo, lluvia de neón.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>

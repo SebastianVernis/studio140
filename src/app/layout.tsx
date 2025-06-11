@@ -15,9 +15,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet" />
+        {/* Removed Orbitron font import, Segoe UI will be a system font preference */}
       </head>
       <body className="font-body antialiased">
         {children}
