@@ -30,6 +30,14 @@ export async function generateImageAction(input: GenerateMarketingImageInput): P
     return { data: result };
   } catch (error) {
     console.error("Error in generateImageAction:", error);
-    return { error: error instanceof Error ? error.message : "An unknown error occurred while generating the image." };
+    // Check for specific Genkit error structures if applicable
+    let errorMessage = "An unknown error occurred while generating the image.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    // It might be useful to log the full error object for more details,
+    // especially if it's a Genkit-specific error with more context.
+    // console.error("Full error object in generateImageAction:", JSON.stringify(error, null, 2));
+    return { error: errorMessage };
   }
 }

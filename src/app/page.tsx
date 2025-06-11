@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent } from 'react';
+import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { generateTextAction, type GenerateTextActionResult, generateImageAction, type GenerateImageActionResult } from './actions';
 import { ContentCard, type ContentPost } from '@/components/content-card';
 import { LoadingSpinner } from '@/components/loading-spinner';
-import { FileText, AlertCircle, Sparkles, Image as ImageIconLucide, Settings2 } from 'lucide-react';
+import { FileText, AlertCircle, Sparkles, Image as ImageIconLucide, Settings2, UploadCloud, XCircle } from 'lucide-react';
 
 const platformOptions = ["Instagram", "Facebook", "Twitter (X)", "LinkedIn", "TikTok", "Genérico"];
 const toneOptions = ["Profesional", "Amistoso", "Divertido", "Persuasivo", "Inspirador", "Futurista"];
@@ -75,6 +76,10 @@ export default function HomePage() {
   const [currentTextImageTypes, setCurrentTextImageTypes] = useState(imageTypeOptionsByPlatform[selectedTextPlatform] || imageTypeOptionsByPlatform.Genérico);
   const [currentDirectImageTypes, setCurrentDirectImageTypes] = useState(imageTypeOptionsByPlatform[selectedDirectImagePlatform] || imageTypeOptionsByPlatform.Genérico);
 
+  const [uploadedBaseImage, setUploadedBaseImage] = useState<string | null>(null);
+  const [uploadedBaseImagePreview, setUploadedBaseImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     setCurrentTextImageTypes(imageTypeOptionsByPlatform[selectedTextPlatform] || imageTypeOptionsByPlatform.Genérico);
     setSelectedTextImageType(imageTypeOptionsByPlatform[selectedTextPlatform]?.[0]?.value || imageTypeOptionsByPlatform.Genérico[0].value);
@@ -119,6 +124,27 @@ export default function HomePage() {
     setIsLoadingText(false);
   };
 
+  const handleBaseImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        const dataUri = loadEvent.target?.result as string;
+        setUploadedBaseImage(dataUri);
+        setUploadedBaseImagePreview(dataUri);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeBaseImage = () => {
+    setUploadedBaseImage(null);
+    setUploadedBaseImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Reset file input
+    }
+  };
+
   const handleGenerateDirectImage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!imagePrompt.trim()) {
@@ -133,12 +159,13 @@ export default function HomePage() {
       topic: imagePrompt,
       platform: selectedDirectImagePlatform,
       imageType: selectedDirectImageType,
+      baseImageDataUri: uploadedBaseImage || undefined,
     });
 
     if (result.data?.imageUrl) {
       const newPost: ContentPost = {
         id: crypto.randomUUID(),
-        mainText: `Prompt: ${imagePrompt}`,
+        mainText: `Prompt: ${imagePrompt}${uploadedBaseImagePreview ? ' (con imagen base)' : ''}`,
         hashtags: [], 
         originalTopic: imagePrompt, 
         imageUrl: result.data.imageUrl,
@@ -149,6 +176,7 @@ export default function HomePage() {
       };
       setGeneratedPosts(prevPosts => [newPost, ...prevPosts]);
       setImagePrompt(''); 
+      removeBaseImage();
     } else if (result.error) {
       setDirectImageError(result.error);
     }
@@ -300,7 +328,47 @@ export default function HomePage() {
 
         <form onSubmit={handleGenerateDirectImage} className="mb-8">
            <h2 className="text-xl font-semibold text-accent mb-1">2. Generar Imagen desde Prompt</h2>
-           <p className="text-sm text-muted-foreground mb-4">Escribe tu idea, elige la plataforma y el formato para la imagen.</p>
+           <p className="text-sm text-muted-foreground mb-4">Escribe tu idea, sube una imagen base (opcional), elige plataforma y formato.</p>
+          
+          <div className="mb-4">
+            <Label htmlFor="baseImageUpload" className="block text-sm font-medium text-foreground mb-2">
+              Imagen Base (Opcional)
+            </Label>
+            <div className="flex items-center gap-4">
+              <Input
+                id="baseImageUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleBaseImageUpload}
+                className="block w-full text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 disabled:opacity-50"
+                disabled={isLoadingDirectImage}
+                ref={fileInputRef}
+              />
+            </div>
+          </div>
+
+          {uploadedBaseImagePreview && (
+            <div className="mb-4 relative w-40 h-40 border border-input rounded-md p-1">
+              <Image 
+                src={uploadedBaseImagePreview} 
+                alt="Vista previa de imagen base" 
+                layout="fill" 
+                objectFit="contain"
+                className="rounded"
+              />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute -top-3 -right-3 h-7 w-7 bg-card hover:bg-destructive text-destructive-foreground hover:text-destructive-foreground rounded-full"
+                onClick={removeBaseImage}
+                title="Quitar imagen base"
+                disabled={isLoadingDirectImage}
+              >
+                <XCircle className="h-5 w-5" />
+              </Button>
+            </div>
+          )}
+
           <div className="mb-6">
             <Label htmlFor="imagePrompt" className="block text-sm font-medium text-foreground mb-2">Tu Prompt Detallado para la Imagen</Label>
             <Textarea
