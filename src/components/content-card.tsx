@@ -6,10 +6,11 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { generateImageAction } from '@/app/actions';
 import { LoadingSpinner } from './loading-spinner';
-import { ImageIcon, Copy, Sparkles, Download, RefreshCw, Info, Eye, RefreshCcw, FilePenLine } from 'lucide-react';
+import { ImageIcon, Copy, Sparkles, Download, RefreshCw, Info, Eye, RefreshCcw, Wand2 } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -22,8 +23,12 @@ import {
   DialogTrigger,
   DialogClose,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  DialogFooter,
+  DialogDescription
 } from "@/components/ui/dialog";
+import { Label }
+from './ui/label';
 
 export interface ContentPost {
   id: string;
@@ -50,6 +55,8 @@ interface ContentCardProps {
 export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onImageGenerationError, onStartImageGeneration, onRegenerateText }) => {
   const { toast } = useToast();
   const [isRegeneratingText, setIsRegeneratingText] = useState(false);
+  const [isRefineDialogOpen, setIsRefineDialogOpen] = useState(false);
+  const [refinementPrompt, setRefinementPrompt] = useState("");
 
   const handleGenerateImage = async () => {
     onStartImageGeneration(post.id);
@@ -63,6 +70,36 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     } else {
       onImageGenerationError(post.id, result.error || 'Failed to generate image.');
     }
+  };
+
+  const handleRefineImage = async () => {
+    if (!refinementPrompt.trim()) {
+      toast({ title: "Error", description: "Por favor, ingresa un prompt para refinar la imagen.", variant: "destructive" });
+      return;
+    }
+    if (!post.imageUrl) {
+      toast({ title: "Error", description: "No hay imagen base para refinar.", variant: "destructive" });
+      return;
+    }
+
+    onStartImageGeneration(post.id); // Indicate loading state
+    setIsRefineDialogOpen(false);
+
+    const result = await generateImageAction({
+      topic: refinementPrompt, // This is the refinement instruction
+      platform: post.platform,
+      imageType: post.imageType,
+      baseImageDataUri: post.imageUrl, // Current image as base
+    });
+
+    if (result.data?.imageUrl) {
+      onImageGenerated(post.id, result.data.imageUrl);
+      toast({ title: "Imagen Refinada", description: "La imagen ha sido actualizada con tus indicaciones." });
+    } else {
+      onImageGenerationError(post.id, result.error || 'Failed to refine image.');
+      toast({ title: "Error al Refinar", description: result.error || 'No se pudo refinar la imagen.', variant: "destructive" });
+    }
+    setRefinementPrompt(""); // Clear prompt after attempt
   };
 
   const triggerRegenerateText = async () => {
@@ -121,12 +158,12 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
 
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden shadow-lg rounded-2xl">
+    <Card className="flex flex-col h-full overflow-hidden shadow-lg rounded-2xl bg-card">
       <CardHeader className="p-0 aspect-video w-full relative bg-muted/20 dark:bg-muted/30 border-b border-border flex items-center justify-center">
         {post.isGeneratingImage ? (
           <div className="flex flex-col items-center justify-center h-full">
             <LoadingSpinner size={32} borderTopColor="border-t-primary" />
-            <p className="text-xs text-muted-foreground mt-2">Creando imagen para {post.platform || 'Plataforma Genérica'} ({displayImageType})...</p>
+            <p className="text-xs text-muted-foreground mt-2">Procesando imagen para {post.platform || 'Plataforma Genérica'} ({displayImageType})...</p>
           </div>
         ) : post.imageUrl ? (
           <>
@@ -170,7 +207,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
                         <TooltipContent side="top"><p>Vista Previa</p></TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
-                <DialogContent className="max-w-screen-lg p-4">
+                <DialogContent className="max-w-screen-lg p-4 bg-card">
                     <DialogHeader>
                         <DialogTitle>Vista Previa: {post.originalTopic}</DialogTitle>
                     </DialogHeader>
@@ -199,13 +236,53 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
               <TooltipProvider>
                  <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon" onClick={handleGenerateImage} title="Volver a Generar Imagen" className="h-9 w-9 hover:bg-primary/10">
+                        <Button variant="outline" size="icon" onClick={handleGenerateImage} title="Volver a Generar Imagen (desde tema original)" className="h-9 w-9 hover:bg-primary/10">
                             <RefreshCw className="h-4 w-4 text-primary" />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="top"><p>Regenerar Imagen</p></TooltipContent>
+                    <TooltipContent side="top"><p>Regenerar Imagen (desde tema original)</p></TooltipContent>
                  </Tooltip>
               </TooltipProvider>
+               <Dialog open={isRefineDialogOpen} onOpenChange={setIsRefineDialogOpen}>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" size="icon" title="Refinar Imagen" className="h-9 w-9 hover:bg-accent/20">
+                                    <Wand2 className="h-4 w-4 text-accent" />
+                                </Button>
+                            </DialogTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="top"><p>Refinar Imagen</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <DialogContent className="sm:max-w-[425px] bg-card">
+                    <DialogHeader>
+                    <DialogTitle>Refinar Imagen</DialogTitle>
+                    <DialogDescription>
+                        Escribe un prompt para modificar la imagen actual. Por ejemplo: "hazlo más azul", "añade un estilo cyberpunk", "cambia el fondo a una playa".
+                    </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="refine-prompt" className="text-right col-span-1">
+                        Prompt
+                        </Label>
+                        <Input
+                        id="refine-prompt"
+                        value={refinementPrompt}
+                        onChange={(e) => setRefinementPrompt(e.target.value)}
+                        className="col-span-3"
+                        placeholder="Ej: Más vibrante, con luces de neón"
+                        />
+                    </div>
+                    </div>
+                    <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsRefineDialogOpen(false)}>Cancelar</Button>
+                    <Button type="submit" onClick={handleRefineImage} className="bg-accent text-accent-foreground hover:bg-accent/90">Aplicar Refinamiento</Button>
+                    </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </>
         ) : post.imageError ? (
@@ -291,5 +368,3 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     </Card>
   );
 };
-
-    

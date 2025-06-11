@@ -13,14 +13,14 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateMarketingImageInputSchema = z.object({
-  topic: z.string().describe('The topic or subject for the marketing image.'),
+  topic: z.string().describe('The topic, subject, or refinement instruction for the marketing image.'),
   platform: z.string().optional().describe('The target social media platform (e.g., Instagram, Facebook). This helps guide the overall style.'),
   imageType: z.string().optional().describe('The type of image to generate, including dimension hints (e.g., "Instagram Story (1080x1920px)", "Facebook Square Post (1200x1200px)"). This helps guide the style and aspect ratio.'),
   baseImageDataUri: z
     .string()
     .optional()
     .describe(
-      "An optional base image as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'. If provided, the generated image will be influenced by this base image."
+      "An optional base image as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'. If provided, the generated image will be influenced or refined based on this image."
     ),
 });
 
@@ -49,9 +49,16 @@ const generateMarketingImageFlow = ai.defineFlow(
     outputSchema: GenerateMarketingImageOutputSchema,
   },
   async (input) => {
-    let textPrompt = `Generate a sophisticated and conceptually rich marketing image for the topic: "${input.topic}".`;
-    textPrompt += ` The image should be visually engaging and thought-provoking, acting as a strong visual anchor for a text post.`;
-    textPrompt += ` Consider a dynamic composition, symbolic elements, or a unique artistic interpretation related to the topic.`;
+    let textPrompt = '';
+
+    if (input.baseImageDataUri) {
+      textPrompt = `Refine or modify the provided base image using the following instruction or theme: "${input.topic}".`;
+    } else {
+      textPrompt = `Generate a sophisticated and conceptually rich marketing image for the topic: "${input.topic}".`;
+    }
+    
+    textPrompt += ` The image should be visually engaging and thought-provoking.`;
+    textPrompt += ` Consider a dynamic composition, symbolic elements, or a unique artistic interpretation related to the instruction/topic.`;
 
     if (input.platform && input.imageType) {
       textPrompt += ` Optimize for ${input.platform}, specifically for a ${input.imageType} format.`;
@@ -60,13 +67,13 @@ const generateMarketingImageFlow = ai.defineFlow(
     } else if (input.imageType) {
       textPrompt += ` The image should be a ${input.imageType}.`;
     }
-    textPrompt += ` Aim for a high-quality, professional, and modern aesthetic. Avoid overly simplistic or generic representations. Strive for an image that sparks curiosity and complements the core message of the topic.`;
+    textPrompt += ` Aim for a high-quality, professional, and modern aesthetic. Avoid overly simplistic or generic representations. Strive for an image that sparks curiosity and complements the core message.`;
 
     const promptSegments: any[] = [];
 
     if (input.baseImageDataUri) {
       promptSegments.push({media: {url: input.baseImageDataUri}});
-      textPrompt = `Using the provided image as a strong reference or base, ${textPrompt.charAt(0).toLowerCase() + textPrompt.slice(1)}`;
+      // The main instruction for refinement is already in textPrompt
     }
     
     promptSegments.push({text: textPrompt});
@@ -92,4 +99,3 @@ const generateMarketingImageFlow = ai.defineFlow(
     return {imageUrl: media.url!};
   }
 );
-
