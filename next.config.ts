@@ -1,4 +1,60 @@
 const nextConfig = {
+  react: {
+    useSuspense: true,
+  },
+  output: 'standalone',
+  basePath: '',
+  trailingSlash: false,
+  images: {
+    unoptimized: true,
+  },
+  i18n: {
+    locales: ['en', 'es'],
+    defaultLocale: 'en',
+    localeDetection: true,
+  },
+  env: {},
+  publicRuntimeConfig: {},
+  serverRuntimeConfig: {},
+  async redirects() {
+    return [];
+  },
+  async rewrites() {
+    return [];
+  },
+  async headers() {
+    return [];
+  },
+  async redirects() {
+    return [];
+  },
+  async experimental() {
+    return {};
+  },
+  async redirects() {
+    return [];
+  },
+  async headers() {
+    return [];
+  },
+  async rewrites() {
+    return [];
+  },
+  async redirects() {
+    return [];
+  },
+  async headers() {
+    return [];
+  },
+  async rewrites() {
+    return [];
+  },
+  async redirects() {
+    return [];
+  },
+  async headers() {
+    return [];
+  },
   poweredByHeader: false,
   reactStrictMode: true,
   typescript: {
