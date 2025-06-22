@@ -1,0 +1,213 @@
+
+> studio140@0.1.0 dev
+> next dev -p 9002
+
+   ▲ Next.js 14.1.0
+   - Local:        http://localhost:9002
+   - Experiments (use at your own risk):
+     · optimizeCss
+     · typedRoutes
+
+ ⚠ Invalid next.config.js options detected: 
+ ⚠     Expected object, received boolean at "experimental.serverActions"
+ ⚠     Invalid literal value, expected false at "i18n.localeDetection"
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ⚠ Server Actions are available by default now, `experimental.serverActions` option can be safely removed.
+
+   We detected TypeScript in your project and reconfigured your tsconfig.json file for you. Strict-mode is set to false by default.
+   The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+   	- include was updated to add '.next/types/**/*.ts'
+
+ ✓ Ready in 1848ms
+ ○ Compiling / ...
+ ⨯ ./src/ai/flows/generate-marketing-image.ts
+Error: 
+  [31mx[0m Expected ',', got 'data'
+    ,-[[36;1;4m/home/user/workspace/src/ai/flows/generate-marketing-image.ts[0m:37:1]
+ [2m37[0m |   imageUrl: z
+ [2m38[0m |     .string()
+ [2m39[0m |     .describe(
+ [2m40[0m |       'The generated marketing image as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'.'
+    : [31;1m                                                                                                                            ^^^^[0m
+ [2m41[0m |     ),
+ [2m42[0m |   mistralImageUrl: z
+ [2m43[0m |     .string()
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/ai/flows/generate-marketing-image.ts
+./src/app/actions.ts
+ ⨯ ./src/ai/flows/generate-marketing-image.ts
+Error: 
+  [31mx[0m Expected ',', got 'data'
+    ,-[[36;1;4m/home/user/workspace/src/ai/flows/generate-marketing-image.ts[0m:37:1]
+ [2m37[0m |   imageUrl: z
+ [2m38[0m |     .string()
+ [2m39[0m |     .describe(
+ [2m40[0m |       'The generated marketing image as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'.'
+    : [31;1m                                                                                                                            ^^^^[0m
+ [2m41[0m |     ),
+ [2m42[0m |   mistralImageUrl: z
+ [2m43[0m |     .string()
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/ai/flows/generate-marketing-image.ts
+./src/app/actions.ts
+ ⨯ ./src/ai/flows/generate-marketing-image.ts
+Error: 
+  [31mx[0m Expected ',', got 'data'
+    ,-[[36;1;4m/home/user/workspace/src/ai/flows/generate-marketing-image.ts[0m:37:1]
+ [2m37[0m |   imageUrl: z
+ [2m38[0m |     .string()
+ [2m39[0m |     .describe(
+ [2m40[0m |       'The generated marketing image as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'.'
+    : [31;1m                                                                                                                            ^^^^[0m
+ [2m41[0m |     ),
+ [2m42[0m |   mistralImageUrl: z
+ [2m43[0m |     .string()
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/ai/flows/generate-marketing-image.ts
+./src/app/actions.ts
+ ⨯ Error: Cannot find module 'critters'
+Require stack:
+- /home/user/workspace/node_modules/next/dist/server/post-process.js
+- /home/user/workspace/node_modules/next/dist/server/render.js
+- /home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/module.js
+- /home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/builtin/_error.js
+- /home/user/workspace/node_modules/next/dist/server/load-default-error-components.js
+- /home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js
+- /home/user/workspace/node_modules/next/dist/server/next.js
+- /home/user/workspace/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at /home/user/workspace/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at mod.require (/home/user/workspace/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:182:18)
+    at /home/user/workspace/node_modules/next/dist/server/post-process.js:147:30
+    at postProcessHTML (/home/user/workspace/node_modules/next/dist/server/post-process.js:165:29)
+    at async renderToHTMLImpl (/home/user/workspace/node_modules/next/dist/server/render.js:1010:27)
+    at async doRender (/home/user/workspace/node_modules/next/dist/server/base-server.js:1381:30)
+    at async cacheEntry.responseCache.get.routeKind (/home/user/workspace/node_modules/next/dist/server/base-server.js:1555:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/user/workspace/node_modules/next/dist/server/base-server.js:1463:28)
+    at async DevServer.pipeImpl (/home/user/workspace/node_modules/next/dist/server/base-server.js:911:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/user/workspace/node_modules/next/dist/server/next-server.js:230:21)
+    at async DevServer.handleRequestImpl (/home/user/workspace/node_modules/next/dist/server/base-server.js:807:17)
+    at async /home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js:331:20
+    at async Span.traceAsyncFn (/home/user/workspace/node_modules/next/dist/trace/trace.js:151:20)
+    at async DevServer.handleRequest (/home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js:328:24)
+    at async invokeRender (/home/user/workspace/node_modules/next/dist/server/lib/router-server.js:163:21)
+    at async handleRequest (/home/user/workspace/node_modules/next/dist/server/lib/router-server.js:342:24)
+    at async requestHandlerImpl (/home/user/workspace/node_modules/next/dist/server/lib/router-server.js:366:13)
+    at async Server.requestListener (/home/user/workspace/node_modules/next/dist/server/lib/start-server.js:140:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/home/user/workspace/node_modules/next/dist/server/post-process.js',
+    '/home/user/workspace/node_modules/next/dist/server/render.js',
+    '/home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/module.js',
+    '/home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/builtin/_error.js',
+    '/home/user/workspace/node_modules/next/dist/server/load-default-error-components.js',
+    '/home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js',
+    '/home/user/workspace/node_modules/next/dist/server/next.js',
+    '/home/user/workspace/node_modules/next/dist/server/lib/start-server.js'
+  ]
+}
+Error: Cannot find module 'critters'
+Require stack:
+- /home/user/workspace/node_modules/next/dist/server/post-process.js
+- /home/user/workspace/node_modules/next/dist/server/render.js
+- /home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/module.js
+- /home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/builtin/_error.js
+- /home/user/workspace/node_modules/next/dist/server/load-default-error-components.js
+- /home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js
+- /home/user/workspace/node_modules/next/dist/server/next.js
+- /home/user/workspace/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at /home/user/workspace/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at mod.require (/home/user/workspace/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:182:18)
+    at /home/user/workspace/node_modules/next/dist/server/post-process.js:147:30
+    at postProcessHTML (/home/user/workspace/node_modules/next/dist/server/post-process.js:165:29)
+    at async renderToHTMLImpl (/home/user/workspace/node_modules/next/dist/server/render.js:1010:27)
+    at async doRender (/home/user/workspace/node_modules/next/dist/server/base-server.js:1381:30)
+    at async cacheEntry.responseCache.get.routeKind (/home/user/workspace/node_modules/next/dist/server/base-server.js:1555:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/user/workspace/node_modules/next/dist/server/base-server.js:1463:28)
+    at async DevServer.pipeImpl (/home/user/workspace/node_modules/next/dist/server/base-server.js:911:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/user/workspace/node_modules/next/dist/server/next-server.js:230:21)
+    at async DevServer.handleRequestImpl (/home/user/workspace/node_modules/next/dist/server/base-server.js:807:17)
+    at async /home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js:331:20
+    at async Span.traceAsyncFn (/home/user/workspace/node_modules/next/dist/trace/trace.js:151:20)
+    at async DevServer.handleRequest (/home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js:328:24)
+    at async invokeRender (/home/user/workspace/node_modules/next/dist/server/lib/router-server.js:163:21)
+    at async handleRequest (/home/user/workspace/node_modules/next/dist/server/lib/router-server.js:342:24)
+    at async requestHandlerImpl (/home/user/workspace/node_modules/next/dist/server/lib/router-server.js:366:13)
+    at async Server.requestListener (/home/user/workspace/node_modules/next/dist/server/lib/start-server.js:140:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/home/user/workspace/node_modules/next/dist/server/post-process.js',
+    '/home/user/workspace/node_modules/next/dist/server/render.js',
+    '/home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/module.js',
+    '/home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/builtin/_error.js',
+    '/home/user/workspace/node_modules/next/dist/server/load-default-error-components.js',
+    '/home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js',
+    '/home/user/workspace/node_modules/next/dist/server/next.js',
+    '/home/user/workspace/node_modules/next/dist/server/lib/start-server.js'
+  ]
+}
+Error: Cannot find module 'critters'
+Require stack:
+- /home/user/workspace/node_modules/next/dist/server/post-process.js
+- /home/user/workspace/node_modules/next/dist/server/render.js
+- /home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/module.js
+- /home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/builtin/_error.js
+- /home/user/workspace/node_modules/next/dist/server/load-default-error-components.js
+- /home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js
+- /home/user/workspace/node_modules/next/dist/server/next.js
+- /home/user/workspace/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at /home/user/workspace/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at mod.require (/home/user/workspace/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:182:18)
+    at /home/user/workspace/node_modules/next/dist/server/post-process.js:147:30
+    at postProcessHTML (/home/user/workspace/node_modules/next/dist/server/post-process.js:165:29)
+    at async renderToHTMLImpl (/home/user/workspace/node_modules/next/dist/server/render.js:1010:27)
+    at async doRender (/home/user/workspace/node_modules/next/dist/server/base-server.js:1381:30)
+    at async cacheEntry.responseCache.get.routeKind (/home/user/workspace/node_modules/next/dist/server/base-server.js:1555:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/user/workspace/node_modules/next/dist/server/base-server.js:1463:28)
+    at async pipe.req.req (/home/user/workspace/node_modules/next/dist/server/base-server.js:1988:30)
+    at async DevServer.pipeImpl (/home/user/workspace/node_modules/next/dist/server/base-server.js:911:25)
+    at async /home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js:331:20
+    at async Span.traceAsyncFn (/home/user/workspace/node_modules/next/dist/trace/trace.js:151:20)
+    at async DevServer.handleRequest (/home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js:328:24)
+    at async invokeRender (/home/user/workspace/node_modules/next/dist/server/lib/router-server.js:163:21)
+    at async requestHandlerImpl (/home/user/workspace/node_modules/next/dist/server/lib/router-server.js:378:24)
+    at async Server.requestListener (/home/user/workspace/node_modules/next/dist/server/lib/start-server.js:140:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/home/user/workspace/node_modules/next/dist/server/post-process.js',
+    '/home/user/workspace/node_modules/next/dist/server/render.js',
+    '/home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/module.js',
+    '/home/user/workspace/node_modules/next/dist/server/future/route-modules/pages/builtin/_error.js',
+    '/home/user/workspace/node_modules/next/dist/server/load-default-error-components.js',
+    '/home/user/workspace/node_modules/next/dist/server/dev/next-dev-server.js',
+    '/home/user/workspace/node_modules/next/dist/server/next.js',
+    '/home/user/workspace/node_modules/next/dist/server/lib/start-server.js'
+  ]
+}

@@ -1,4 +1,5 @@
 
+
 'use server';
 
 /**
@@ -9,8 +10,8 @@
  * - GenerateMarketingPostOutput - The return type for the generateMarketingPost function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { mistralClient, mistralModel } from '@/ai/config';
+import { z } from 'zod';
 
 const GenerateMarketingPostInputSchema = z.object({
   topic: z.string().describe('The topic of the marketing post.'),
@@ -27,36 +28,53 @@ const GenerateMarketingPostOutputSchema = z.object({
 export type GenerateMarketingPostOutput = z.infer<typeof GenerateMarketingPostOutputSchema>;
 
 export async function generateMarketingPost(input: GenerateMarketingPostInput): Promise<GenerateMarketingPostOutput> {
-  return generateMarketingPostFlow(input);
-}
+  const prompt = `You are a social media marketing expert. Generate a marketing post in the specified language.
 
-const generateMarketingPostPrompt = ai.definePrompt({
-  name: 'generateMarketingPostPrompt',
-  input: {schema: GenerateMarketingPostInputSchema},
-  output: {schema: GenerateMarketingPostOutputSchema},
-  prompt: `You are a social media marketing expert. Generate a marketing post in the specified language.
-
-Target Language: {{{language}}}
-Topic: {{{topic}}}
-Platform: {{{platform}}}
-Tone of voice: {{{tone}}}
+Target Language: ${input.language}
+Topic: ${input.topic}
+Platform: ${input.platform}
+Tone of voice: ${input.tone}
 
 The post should include a main text and a list of relevant hashtags. The hashtags should also be in the target language and provided as a list of strings without the '#' symbol.
 
-Post:
-`,
-});
+Please respond with a JSON object in the following format:
+{
+  "main_text": "Your marketing post text here",
+  "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
+}
 
-const generateMarketingPostFlow = ai.defineFlow(
-  {
-    name: 'generateMarketingPostFlow',
-    inputSchema: GenerateMarketingPostInputSchema,
-    outputSchema: GenerateMarketingPostOutputSchema,
-  },
-  async input => {
-    const {output} = await generateMarketingPostPrompt(input);
-    return output!;
+Post:`;
+
+  try {
+    const response = await mistralClient.chat.complete({
+      model: mistralModel,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      responseFormat: {
+        type: 'json_object',
+      },
+    });
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No content received from Mistral API');
+    }
+
+    const parsedResponse = JSON.parse(content);
+    
+    // Validate the response structure
+    const validatedOutput = GenerateMarketingPostOutputSchema.parse(parsedResponse);
+    
+    return validatedOutput;
+  } catch (error) {
+    console.error('Error generating marketing post with Mistral:', error);
+    throw new Error(`Failed to generate marketing post: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-);
+}
+
 
     
