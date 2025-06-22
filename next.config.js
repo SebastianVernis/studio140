@@ -23,7 +23,7 @@ const nextConfig = {
   i18n: {
     locales: ['en', 'es'],
     defaultLocale: 'en',
-    localeDetection: true,
+    localeDetection: false,
   },
   
   // TypeScript and ESLint
@@ -37,8 +37,6 @@ const nextConfig = {
   
   // Experimental features
   experimental: {
-    optimizeCss: true,
-    serverActions: true,
     typedRoutes: true,
     serverComponentsExternalPackages: ['@mistralai/mistralai', '@google/generative-ai'],
   },
