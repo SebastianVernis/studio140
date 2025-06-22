@@ -37,7 +37,7 @@ const GenerateMarketingImageOutputSchema = z.object({
   imageUrl: z
     .string()
     .describe(
-      'The generated marketing image as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'.'
+      "The generated marketing image as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>."
     ),
   mistralImageUrl: z
     .string()
