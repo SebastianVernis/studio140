@@ -2,7 +2,7 @@
 "use server";
 
 import { generateMarketingPost, type GenerateMarketingPostInput, type GenerateMarketingPostOutput } from "@/ai/flows/generate-marketing-post";
-import { generateMarketingImage, type GenerateMarketingImageInput, type GenerateMarketingImageOutput } from "@/ai/flows/generate-marketing-image";
+import { generateMarketingImage, generateDualMarketingImages, type GenerateMarketingImageInput, type GenerateMarketingImageOutput } from "@/ai/flows/generate-marketing-image";
 
 export interface GenerateTextActionResult {
   data?: GenerateMarketingPostOutput;
@@ -11,6 +11,11 @@ export interface GenerateTextActionResult {
 
 export async function generateTextAction(input: GenerateMarketingPostInput): Promise<GenerateTextActionResult> {
   try {
+    // Validate API keys before processing
+    if (!process.env.MISTRAL_API_KEY) {
+      return { error: "Mistral API key is not configured. Please add MISTRAL_API_KEY to your environment variables." };
+    }
+
     const result = await generateMarketingPost(input);
     return { data: result };
   } catch (error) {
@@ -26,18 +31,51 @@ export interface GenerateImageActionResult {
 
 export async function generateImageAction(input: GenerateMarketingImageInput): Promise<GenerateImageActionResult> {
   try {
+    // Validate API keys before processing
+    if (!process.env.MISTRAL_API_KEY) {
+      return { error: "Mistral API key is not configured. Please add MISTRAL_API_KEY to your environment variables." };
+    }
+    
+    if (!process.env.GEMINI_API_KEY) {
+      return { error: "Gemini API key is not configured. Please add GEMINI_API_KEY to your environment variables." };
+    }
+
     const result = await generateMarketingImage(input);
     return { data: result };
   } catch (error) {
     console.error("Error in generateImageAction:", error);
-    // Check for specific Genkit error structures if applicable
     let errorMessage = "An unknown error occurred while generating the image.";
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    // It might be useful to log the full error object for more details,
-    // especially if it's a Genkit-specific error with more context.
-    // console.error("Full error object in generateImageAction:", JSON.stringify(error, null, 2));
+    return { error: errorMessage };
+  }
+}
+
+export interface GenerateDualImageActionResult {
+  data?: GenerateMarketingImageOutput;
+  error?: string;
+}
+
+export async function generateDualImageAction(input: GenerateMarketingImageInput): Promise<GenerateDualImageActionResult> {
+  try {
+    // Validate API keys before processing
+    if (!process.env.MISTRAL_API_KEY) {
+      return { error: "Mistral API key is not configured. Please add MISTRAL_API_KEY to your environment variables." };
+    }
+    
+    if (!process.env.GEMINI_API_KEY) {
+      return { error: "Gemini API key is not configured. Please add GEMINI_API_KEY to your environment variables." };
+    }
+
+    const result = await generateDualMarketingImages(input);
+    return { data: result };
+  } catch (error) {
+    console.error("Error in generateDualImageAction:", error);
+    let errorMessage = "An unknown error occurred while generating dual images.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return { error: errorMessage };
   }
 }

@@ -1,0 +1,44 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "functions": {
+    "src/app/**/*.ts": {
+      "maxDuration": 60
+    },
+    "src/ai/**/*.ts": {
+      "maxDuration": 60
+    }
+  },
+  "env": {
+    "MISTRAL_API_KEY": "@mistral_api_key",
+    "GEMINI_API_KEY": "@gemini_api_key"
+  },
+  "build": {
+    "env": {
+      "MISTRAL_API_KEY": "@mistral_api_key",
+      "GEMINI_API_KEY": "@gemini_api_key"
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ]
+}

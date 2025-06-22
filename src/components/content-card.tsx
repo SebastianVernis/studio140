@@ -36,17 +36,19 @@ export interface ContentPost {
   hashtags: string[];
   originalTopic: string;
   imageUrl?: string;
+  mistralImageUrl?: string;
   isGeneratingImage?: boolean;
   imageError?: string;
   platform?: string;
   imageType?: string;
   tone?: string;
   language?: string;
+  isDualGeneration?: boolean;
 }
 
 interface ContentCardProps {
   post: ContentPost;
-  onImageGenerated: (postId: string, imageUrl: string) => void;
+  onImageGenerated: (postId: string, imageUrl: string, mistralImageUrl?: string) => void;
   onImageGenerationError: (postId: string, error: string) => void;
   onStartImageGeneration: (postId: string) => void;
   onRegenerateText: (postId: string, originalTopic: string, platform: string, tone: string, language: string) => Promise<void>;
@@ -64,9 +66,16 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
       topic: post.originalTopic,
       platform: post.platform,
       imageType: post.imageType,
+      isExistingPrompt: post.isDualGeneration,
     });
     if (result.data?.imageUrl) {
-      onImageGenerated(post.id, result.data.imageUrl);
+      onImageGenerated(post.id, result.data.imageUrl, result.data.mistralImageUrl);
+      if (result.data.mistralImageUrl) {
+        toast({ 
+          title: "Imágenes Generadas", 
+          description: "Se generaron dos variaciones de la imagen. ¡Explora ambas opciones!" 
+        });
+      }
     } else {
       onImageGenerationError(post.id, result.error || 'Failed to generate image.');
     }
@@ -93,7 +102,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     });
 
     if (result.data?.imageUrl) {
-      onImageGenerated(post.id, result.data.imageUrl);
+      onImageGenerated(post.id, result.data.imageUrl, result.data.mistralImageUrl);
       toast({ title: "Imagen Refinada", description: "La imagen ha sido actualizada con tus indicaciones." });
     } else {
       onImageGenerationError(post.id, result.error || 'Failed to refine image.');
@@ -112,17 +121,19 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
     setIsRegeneratingText(false);
   };
 
-  const handleDownloadImage = () => {
-    if (!post.imageUrl) return;
+  const handleDownloadImage = (imageType: 'gemini' | 'mistral' = 'gemini') => {
+    const imageUrl = imageType === 'mistral' ? post.mistralImageUrl : post.imageUrl;
+    if (!imageUrl) return;
+    
     const link = document.createElement('a');
-    link.href = post.imageUrl;
-    link.download = "chispart-image.png";
+    link.href = imageUrl;
+    link.download = `chispart-image-${imageType}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     toast({
       title: 'Imagen descargada',
-      description: 'La descarga de la imagen ha comenzado.',
+      description: `La descarga de la imagen ${imageType === 'mistral' ? 'Mistral' : 'Gemini'} ha comenzado.`,
     });
   };
 
@@ -167,14 +178,48 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
           </div>
         ) : post.imageUrl ? (
           <>
-            <Image
-              src={post.imageUrl}
-              alt={`Generated image for: ${post.originalTopic.substring(0, 50)} (${displayImageType})`}
-              fill={true}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              style={{objectFit: "cover"}}
-              data-ai-hint={`${post.platform || 'social'} ${post.imageType || 'media marketing'}`.toLowerCase().substring(0,30)}
-            />
+            {post.mistralImageUrl ? (
+              // Dual image display
+              <div className="w-full h-full flex">
+                <div className="w-1/2 h-full relative border-r border-border/50">
+                  <Image
+                    src={post.imageUrl}
+                    alt={`Generated image (Gemini) for: ${post.originalTopic.substring(0, 50)} (${displayImageType})`}
+                    fill={true}
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
+                    style={{objectFit: "cover"}}
+                    data-ai-hint={`${post.platform || 'social'} ${post.imageType || 'media marketing'}`.toLowerCase().substring(0,30)}
+                  />
+                  <div className="absolute bottom-2 left-2 bg-blue-500/80 text-white px-2 py-1 rounded text-xs font-medium">
+                    Gemini
+                  </div>
+                </div>
+                <div className="w-1/2 h-full relative">
+                  <Image
+                    src={post.mistralImageUrl}
+                    alt={`Generated image (Mistral) for: ${post.originalTopic.substring(0, 50)} (${displayImageType})`}
+                    fill={true}
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
+                    style={{objectFit: "cover"}}
+                    data-ai-hint={`${post.platform || 'social'} ${post.imageType || 'media marketing'}`.toLowerCase().substring(0,30)}
+                  />
+                  <div className="absolute bottom-2 right-2 bg-orange-500/80 text-white px-2 py-1 rounded text-xs font-medium">
+                    Mistral
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Single image display
+              <Image
+                src={post.imageUrl}
+                alt={`Generated image for: ${post.originalTopic.substring(0, 50)} (${displayImageType})`}
+                fill={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{objectFit: "cover"}}
+                data-ai-hint={`${post.platform || 'social'} ${post.imageType || 'media marketing'}`.toLowerCase().substring(0,30)}
+              />
+            )}
+            
             <div className="absolute top-2 left-2 bg-card/80 dark:bg-card/60 p-1.5 rounded-lg shadow-md text-xs text-foreground">
               <TooltipProvider>
                 <Tooltip>
@@ -182,6 +227,7 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
                      <div className="flex items-center gap-1">
                         <Info className="h-3 w-3 text-muted-foreground" />
                         <span>{post.platform}: {displayImageType}</span>
+                        {post.mistralImageUrl && <span className="text-accent ml-1">(Dual)</span>}
                      </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -189,12 +235,14 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
                     <p>Tipo de imagen: {post.imageType || 'No especificado'}</p>
                     <p>Tema original: {post.originalTopic}</p>
                     {post.language && post.language !== 'N/A' && <p>Idioma: {post.language}</p>}
+                    {post.mistralImageUrl && <p className="text-accent">Generación dual: Gemini + Mistral</p>}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <div className="absolute bottom-2 right-2 flex gap-2 bg-card/80 dark:bg-card/60 p-1.5 rounded-lg shadow-md">
-               <Dialog>
+            
+            <div className="absolute top-2 right-2 flex gap-2">
+              <Dialog>
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -207,32 +255,86 @@ export const ContentCard: FC<ContentCardProps> = ({ post, onImageGenerated, onIm
                         <TooltipContent side="top"><p>Vista Previa</p></TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
-                <DialogContent className="max-w-screen-lg p-4 bg-card">
+                <DialogContent className="max-w-4xl p-4 bg-card">
                     <DialogHeader>
                         <DialogTitle>Vista Previa: {post.originalTopic}</DialogTitle>
                     </DialogHeader>
                     <div className="relative w-full mt-2">
-                        <Image
+                        {post.mistralImageUrl ? (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-medium text-blue-600">Gemini</h4>
+                              <Image
+                                src={post.imageUrl}
+                                alt={`Vista previa Gemini: ${post.originalTopic}`}
+                                width={960}
+                                height={540}
+                                className="rounded-md object-contain w-full"
+                                data-ai-hint="gemini image preview"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-medium text-orange-600">Mistral</h4>
+                              <Image
+                                src={post.mistralImageUrl}
+                                alt={`Vista previa Mistral: ${post.originalTopic}`}
+                                width={960}
+                                height={540}
+                                className="rounded-md object-contain w-full"
+                                data-ai-hint="mistral image preview"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <Image
                             src={post.imageUrl}
                             alt={`Vista previa de: ${post.originalTopic}`}
                             width={1920}
                             height={1080}
                             className="rounded-md object-contain w-full max-h-[80vh]"
                             data-ai-hint="image preview"
-                            />
+                          />
+                        )}
                     </div>
                 </DialogContent>
               </Dialog>
-              <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon" onClick={handleDownloadImage} title="Descargar Imagen" className="h-9 w-9 hover:bg-primary/10">
-                            <Download className="h-4 w-4 text-primary" />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top"><p>Descargar Imagen</p></TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              {post.mistralImageUrl ? (
+                // Dual download buttons
+                <>
+                  <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" onClick={() => handleDownloadImage('gemini')} title="Descargar Imagen Gemini" className="h-9 w-9 hover:bg-blue-100 dark:hover:bg-blue-900/20">
+                                <Download className="h-4 w-4 text-blue-600" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top"><p>Descargar Gemini</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" onClick={() => handleDownloadImage('mistral')} title="Descargar Imagen Mistral" className="h-9 w-9 hover:bg-orange-100 dark:hover:bg-orange-900/20">
+                                <Download className="h-4 w-4 text-orange-600" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top"><p>Descargar Mistral</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </>
+              ) : (
+                // Single download button
+                <TooltipProvider>
+                  <Tooltip>
+                      <TooltipTrigger asChild>
+                          <Button variant="outline" size="icon" onClick={() => handleDownloadImage('gemini')} title="Descargar Imagen" className="h-9 w-9 hover:bg-primary/10">
+                              <Download className="h-4 w-4 text-primary" />
+                          </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top"><p>Descargar Imagen</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               <TooltipProvider>
                  <Tooltip>
                     <TooltipTrigger asChild>

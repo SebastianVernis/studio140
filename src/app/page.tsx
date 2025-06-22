@@ -207,6 +207,7 @@ export default function HomePage() {
         hashtags: [],
         originalTopic: imagePrompt,
         imageUrl: result.data.imageUrl,
+        mistralImageUrl: result.data.mistralImageUrl,
         isGeneratingImage: false,
         imageError: undefined,
         platform: selectedDirectImagePlatform,
@@ -224,10 +225,10 @@ export default function HomePage() {
   };
 
 
-  const handleImageGenerated = (postId: string, imageUrl: string) => {
+  const handleImageGenerated = (postId: string, imageUrl: string, mistralImageUrl?: string) => {
     setGeneratedPosts(prevPosts =>
       prevPosts.map(p =>
-        p.id === postId ? { ...p, imageUrl, isGeneratingImage: false, imageError: undefined } : p
+        p.id === postId ? { ...p, imageUrl, mistralImageUrl, isGeneratingImage: false, imageError: undefined } : p
       )
     );
   };
@@ -243,7 +244,7 @@ export default function HomePage() {
   const handleStartImageGeneration = (postId: string) => {
      setGeneratedPosts(prevPosts =>
       prevPosts.map(p =>
-        p.id === postId ? { ...p, isGeneratingImage: true, imageError: undefined, imageUrl: undefined } : p
+        p.id === postId ? { ...p, isGeneratingImage: true, imageError: undefined, imageUrl: undefined, mistralImageUrl: undefined } : p
       )
     );
   }
