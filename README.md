@@ -1,136 +1,145 @@
-<p align="center">
-  <img src="assets/Banner.png"  max-width="300">
-</p>
-
-# 🚀 CHISPART Marketing
-
-<div class= align-flex>
+# Chispart Marketing🚀
 
 ![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
-![Ownership](https://img.shields.io/badge/Ownership-Agency-brightgreen) [![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/) [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38b2ac?logo=tailwindcss)](https://tailwindcss.com/) [![Mistral AI](https://img.shields.io/badge/Mistral-AI-orange?logo=ai)](https://mistral.ai/) [![Google Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?logo=google)](https://deepmind.google/technologies/gemini/) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Ownership](https://img.shields.io/badge/Ownership-Agency-brightgreen)
+![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38b2ac?logo=tailwindcss)
+![Mistral AI](https://img.shields.io/badge/Mistral-AI-orange?logo=ai)
+![Google Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?logo=google)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
-</div>
-
-> **AI-powered marketing content generator for social media – Create texts and images with Mistral AI + Google Gemini**
-
----
-
-## ✨ Features
-
-- 📝 **AI Text Generation** – Create marketing copy tailored to platform, tone, and language.  
-- 🎨 **AI Image Creation** – Generate unique visuals from text prompts or refine existing images.  
-- 📱 **Multi-Platform** – Instagram, TikTok, LinkedIn, Facebook, X, and more.  
-- 🌍 **Multilingual Support** – Supports Spanish, English, Chinese, Hindi, Arabic, French, etc.  
-- 🎭 **Customizable Tone** – Match your brand voice.  
-- 🖼️ **Platform-Specific Image Formats** – Ready-to-use for stories, posts, and headers.  
-- 🎯 **Dual Image Generation** – Get two variations for refined prompts.  
+> Generador de contenido de marketing impulsado por IA para redes sociales – Crea textos e imágenes con Mistral AI + Google Gemini
+> 
 
 ---
 
-## 🧩 Flow Diagram
+## ✨ Características
+
+- 📝 **Generación de Texto por IA** – Crea copias de marketing adaptadas a la plataforma, tono e idioma.
+- 🎨 **Creación de Imágenes por IA** – Genera visuales únicos a partir de indicaciones de texto o refina imágenes existentes.
+- 📱 **Multi-Plataforma** – Instagram, TikTok, LinkedIn, Facebook, X, y más.
+- 🌍 **Soporte Multilingüe** – Compatible con español, inglés, chino, hindi, árabe, francés, etc.
+- 🎭 **Tono Personalizable** – Coincide con la voz de tu marca.
+- 🖼️ **Formatos de Imagen Específicos para Plataformas** – Listos para usar en historias, publicaciones y encabezados.
+- 🎯 **Generación Dual de Imágenes** – Obtén dos variaciones para indicaciones refinadas.
+
+---
+
+## 🧩 Diagrama de Flujo
 
 ```mermaid
 flowchart TD
-    A[User enters topic/prompt] --> B[Select platform, tone, language]
-    B --> C[Text Generation with Mistral AI]
-    B --> D[Prompt Optimization for Image]
-    D --> E[Image Generation with Google Gemini]
-    C --> F[Render Results]
-    E --> F[Render Results]
-    F --> G[Actions: Regenerate, Download, Share]
+    A[Usuario ingresa tema/indicación] --> B[Selecciona plataforma, tono, idioma]
+    B --> C[Generación de Texto con Mistral AI]
+    B --> D[Optimización de Indicación para Imagen]
+    D --> E[Generación de Imagen con Google Gemini]
+    C --> F[Mostrar Resultados]
+    E --> F[Mostrar Resultados]
+    F --> G[Acciones: Regenerar, Descargar, Compartir]
+
 ```
-    
-## 🗂️ Project Structure
+
+## 🗂️ Estructura del Proyecto
 
 ```
 bash
 
 src/
- ├─ app/page.tsx             # Main UI and logic
- ├─ ai/flows/                # AI integration logic
+ ├─ app/page.tsx             # UI principal y lógica
+ ├─ ai/flows/                # Lógica de integración de IA
  │   ├─ generate-marketing-post.ts
  │   └─ generate-marketing-image.ts
- ├─ components/              # Reusable UI components
- ├─ hooks/                   # Custom hooks (useToast, etc.)
- ├─ lib/                     # Utility functions
-public/                      # Static assets
-tailwind.config.ts           # Tailwind configuration
-next.config.js               # Next.js configuration
-package.json                 # Dependencies and scripts
+ ├─ components/              # Componentes UI reutilizables
+ ├─ hooks/                   # Hooks personalizados (useToast, etc.)
+ ├─ lib/                     # Funciones de utilidad
+public/                      # Activos estáticos
+tailwind.config.ts           # Configuración de Tailwind
+next.config.js               # Configuración de Next.js
+package.json                 # Dependencias y scripts
+
 ```
 
-## ⚡ Installation
+## ⚡ Instalación
 
 ```
 bash
 
-git clone https://github.com/SebastianVernis/ChispartMarketingGen
+git clone <https://github.com/SebastianVernis/ChispartMarketingGen>
 cd chispart-marketing
 npm install
+
 ```
 
-# or
+# o
 
 ```
 bash
 
-git clone https://github.com/SebastianVernis/ChispartMarketingGen
+git clone <https://github.com/SebastianVernis/ChispartMarketingGen>
 cd chispart-marketing
 yarn install
+
 ```
 
-## 🔐 Environment Variables
+## 🔐 Variables de Entorno
 
-Create a .env.local file:
+Crea un archivo .env.local:
 
 ```
 env
-MISTRAL_API_KEY=your_mistral_api_key
-GEMINI_API_KEY=your_gemini_api_key
+MISTRAL_API_KEY=tu_clave_api_mistral
+GEMINI_API_KEY=tu_clave_api_gemini
+
 ```
 
-Run Locally
+Ejecutar Localmente
 
 ```
 bash
 
 npm run dev
+
 ```
 
-# or
+# o
 
 ```
 yarn dev
+
 ```
 
-Visit http://localhost:3000
+Visita [http://localhost:3000](http://localhost:3000/)
 
-## ✅ Project Status
-🔄 Current version: v1.0
+## ✅ Estado del Proyecto
 
-## 🛠️ Next improvements: 
+🔄 Versión actual: v1.0
 
-Post scheduling, prompt library, direct export.
+## 🛠️ Próximas mejoras:
 
-## 👥 Contributing
-Contributions are welcome!
-Open an issue or submit a pull request.
+Programación de publicaciones, biblioteca de indicaciones, exportación directa.
 
-## 📄 License
-This project is licensed under the MIT License.
+## 👥 Contribuciones
 
-                                    
-<div align= "center">
-  <a text= "font-segoeui align-center strong">🔥 Desarrollado por Sebastian Vernis | Soluciones Digitales</a>
-</div>
-<div align= "center">
-  <a href="https://sebastianvernis.com">Sebastian Vernis 🧑🏻‍💻 </a>
-</div>
-<div align= "center">
-  <a href="https://chispart.mx">Chispart 🎨 </a>
-</div>
-    
+¡Las contribuciones son bienvenidas!
+Abre un problema o envía una solicitud de extracción.
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT.
+
+---
+
+<aside>
+
+ **🔥 Desarrollado por Sebastian Vernis | Soluciones Digitales**                
+
+[Sebastian Vernis](https://sebastianvernis.com) 🧑🏻‍💻 
+[Chispart 🎨](https://chispart.mx)
+
+</aside>
+
 <p align="center">
   <img src="assets/Logo.png">
 </p>
