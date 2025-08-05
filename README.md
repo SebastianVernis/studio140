@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/Banner.png"  max-width="300">
+</p>
+
 # 🚀 CHISPART Marketing
 
 <div class= align-flex>
@@ -54,7 +58,7 @@ next.config.js               # Next.js configuration
 package.json                 # Dependencies and scripts
 ```
 
-⚡ Installation
+## ⚡ Installation
 
 ```
 bash
@@ -74,7 +78,7 @@ cd chispart-marketing
 yarn install
 ```
 
-## Environment Variables
+## 🔐 Environment Variables
 
 Create a .env.local file:
 
@@ -115,5 +119,17 @@ Open an issue or submit a pull request.
 This project is licensed under the MIT License.
 
 
-## 👤 Sebastian Vernis | Soluciones Digitales 
-sebastianvernis.com | chispart.mx
+### 🔥 Desarrollado por Sebastian Vernis | Soluciones Digitales
+                                    
+<div align= "center">
+  <a text= font-segoeui align-center strong>🔥 Desarrollado por Sebastian Vernis | Soluciones Digitales</a>
+</div>
+<div align= "center">
+  <a href="https://sebastianvernis.com">Sebastian Vernis</a>
+    <a> | </a>
+  <a href="https://chispart.mx">Chispart</a>
+</div>
+    
+<p align="center">
+  <img src="assets/Logo.png">
+</p>
