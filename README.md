@@ -123,9 +123,10 @@ This project is licensed under the MIT License.
   <a text= "font-segoeui align-center strong">🔥 Desarrollado por Sebastian Vernis | Soluciones Digitales</a>
 </div>
 <div align= "center">
-  <a href="https://sebastianvernis.com">Sebastian Vernis</a>
-    <a> | </a>
-  <a href="https://chispart.mx">Chispart</a>
+  <a href="https://sebastianvernis.com">Sebastian Vernis 🧑🏻‍💻 </a>
+</div>
+<div>
+  <a href="https://chispart.mx">Chispart 🎨 </a>
 </div>
     
 <p align="center">
