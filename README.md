@@ -118,11 +118,9 @@ Open an issue or submit a pull request.
 ## 📄 License
 This project is licensed under the MIT License.
 
-
-### 🔥 Desarrollado por Sebastian Vernis | Soluciones Digitales
                                     
 <div align= "center">
-  <a text= font-segoeui align-center strong>🔥 Desarrollado por Sebastian Vernis | Soluciones Digitales</a>
+  <a text= "font-segoeui align-center strong">🔥 Desarrollado por Sebastian Vernis | Soluciones Digitales</a>
 </div>
 <div align= "center">
   <a href="https://sebastianvernis.com">Sebastian Vernis</a>
