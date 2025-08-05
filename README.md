@@ -125,7 +125,7 @@ This project is licensed under the MIT License.
 <div align= "center">
   <a href="https://sebastianvernis.com">Sebastian Vernis 🧑🏻‍💻 </a>
 </div>
-<div>
+<div align= "center">
   <a href="https://chispart.mx">Chispart 🎨 </a>
 </div>
     
