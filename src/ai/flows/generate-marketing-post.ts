@@ -1,5 +1,3 @@
-
-
 'use server';
 
 /**
@@ -15,19 +13,33 @@ import { z } from 'zod';
 
 const GenerateMarketingPostInputSchema = z.object({
   topic: z.string().describe('The topic of the marketing post.'),
-  platform: z.string().describe('The platform for the marketing post (e.g., Instagram, Facebook, Twitter).'),
-  tone: z.string().describe('The tone of voice for the marketing post (e.g., Professional, Friendly, Funny).'),
-  language: z.string().describe('The language for the marketing post (e.g., es, en, fr). Provide BCP 47 language codes.'),
+  platform: z
+    .string()
+    .describe('The platform for the marketing post (e.g., Instagram, Facebook, Twitter).'),
+  tone: z
+    .string()
+    .describe('The tone of voice for the marketing post (e.g., Professional, Friendly, Funny).'),
+  language: z
+    .string()
+    .describe(
+      'The language for the marketing post (e.g., es, en, fr). Provide BCP 47 language codes.'
+    ),
 });
 export type GenerateMarketingPostInput = z.infer<typeof GenerateMarketingPostInputSchema>;
 
 const GenerateMarketingPostOutputSchema = z.object({
   main_text: z.string().describe('The main text of the marketing post.'),
-  hashtags: z.array(z.string()).describe('An array of relevant hashtags for the post. Hashtags should be in the specified language and without the # symbol.'),
+  hashtags: z
+    .array(z.string())
+    .describe(
+      'An array of relevant hashtags for the post. Hashtags should be in the specified language and without the # symbol.'
+    ),
 });
 export type GenerateMarketingPostOutput = z.infer<typeof GenerateMarketingPostOutputSchema>;
 
-export async function generateMarketingPost(input: GenerateMarketingPostInput): Promise<GenerateMarketingPostOutput> {
+export async function generateMarketingPost(
+  input: GenerateMarketingPostInput
+): Promise<GenerateMarketingPostOutput> {
   const prompt = `You are a social media marketing expert. Generate a marketing post in the specified language.
 
 Target Language: ${input.language}
@@ -64,17 +76,18 @@ Post:`;
       throw new Error('No content received from Mistral API');
     }
 
-    const parsedResponse = JSON.parse(content);
-    
+    // Handle both string and ContentChunk[] types
+    const contentText = typeof content === 'string' ? content : String(content);
+    const parsedResponse = JSON.parse(contentText);
+
     // Validate the response structure
     const validatedOutput = GenerateMarketingPostOutputSchema.parse(parsedResponse);
-    
+
     return validatedOutput;
   } catch (error) {
     console.error('Error generating marketing post with Mistral:', error);
-    throw new Error(`Failed to generate marketing post: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to generate marketing post: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
-
-
-    

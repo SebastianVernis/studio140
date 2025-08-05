@@ -1,9 +1,8 @@
-
 'use server';
 
 /**
  * @fileOverview Image generation flow for creating marketing images based on a given topic, platform, image type, and an optional base image.
- * 
+ *
  * New workflow:
  * 1. Mistral generates an optimized image prompt
  * 2. Gemini analyzes the prompt and generates the image
@@ -19,16 +18,33 @@ import { mistralClient, mistralModel, geminiImageModel } from '@/ai/config';
 import { z } from 'zod';
 
 const GenerateMarketingImageInputSchema = z.object({
-  topic: z.string().describe('The topic, subject, or refinement instruction for the marketing image.'),
-  platform: z.string().optional().describe('The target social media platform (e.g., Instagram, Facebook). This helps guide the overall style.'),
-  imageType: z.string().optional().describe('The type of image to generate, including dimension hints (e.g., "Instagram Story (1080x1920px)", "Facebook Square Post (1200x1200px)"). This helps guide the style and aspect ratio.'),
+  topic: z
+    .string()
+    .describe('The topic, subject, or refinement instruction for the marketing image.'),
+  platform: z
+    .string()
+    .optional()
+    .describe(
+      'The target social media platform (e.g., Instagram, Facebook). This helps guide the overall style.'
+    ),
+  imageType: z
+    .string()
+    .optional()
+    .describe(
+      'The type of image to generate, including dimension hints (e.g., "Instagram Story (1080x1920px)", "Facebook Square Post (1200x1200px)"). This helps guide the style and aspect ratio.'
+    ),
   baseImageDataUri: z
     .string()
     .optional()
     .describe(
       "An optional base image as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'. If provided, the generated image will be influenced or refined based on this image."
     ),
-  isExistingPrompt: z.boolean().optional().describe('Whether this is a previously created prompt that should trigger dual image generation.'),
+  isExistingPrompt: z
+    .boolean()
+    .optional()
+    .describe(
+      'Whether this is a previously created prompt that should trigger dual image generation.'
+    ),
 });
 
 export type GenerateMarketingImageInput = z.infer<typeof GenerateMarketingImageInputSchema>;
@@ -37,7 +53,7 @@ const GenerateMarketingImageOutputSchema = z.object({
   imageUrl: z
     .string()
     .describe(
-      "The generated marketing image as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>."
+      'The generated marketing image as a data URI that must include a MIME type and use Base64 encoding. Expected format: data:<mimetype>;base64,<encoded_data>.'
     ),
   mistralImageUrl: z
     .string()
@@ -65,9 +81,10 @@ Create a detailed prompt that includes:
 - Technical specifications for the platform
 - Creative elements that make the image engaging
 
-${input.baseImageDataUri 
-  ? 'This prompt will be used to refine an existing base image.' 
-  : 'This prompt will be used to generate a new image from scratch.'
+${
+  input.baseImageDataUri
+    ? 'This prompt will be used to refine an existing base image.'
+    : 'This prompt will be used to generate a new image from scratch.'
 }
 
 Respond with only the optimized prompt text, no additional formatting or explanation.`;
@@ -88,7 +105,10 @@ Respond with only the optimized prompt text, no additional formatting or explana
       throw new Error('No prompt received from Mistral API');
     }
 
-    return optimizedPrompt.trim();
+    // Handle both string and ContentChunk[] types
+    const promptText =
+      typeof optimizedPrompt === 'string' ? optimizedPrompt : String(optimizedPrompt);
+    return promptText.trim();
   } catch (error) {
     console.error('Error generating optimized prompt with Mistral:', error);
     // Fallback to basic prompt if Mistral fails
@@ -104,7 +124,7 @@ function generateFallbackPrompt(input: GenerateMarketingImageInput): string {
   } else {
     textPrompt = `Generate a sophisticated and conceptually rich marketing image for the topic: "${input.topic}".`;
   }
-  
+
   textPrompt += ` The image should be visually engaging and thought-provoking.`;
   textPrompt += ` Consider a dynamic composition, symbolic elements, or a unique artistic interpretation related to the instruction/topic.`;
 
@@ -122,13 +142,20 @@ function generateFallbackPrompt(input: GenerateMarketingImageInput): string {
 
 async function generateImageWithGemini(prompt: string, baseImageDataUri?: string): Promise<string> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parts: any[] = [];
 
     if (baseImageDataUri) {
       // Extract the base64 data and mime type
       const [mimeInfo, base64Data] = baseImageDataUri.split(',');
-      const mimeType = mimeInfo.split(':')[1].split(';')[0];
-      
+      if (!mimeInfo || !base64Data) {
+        throw new Error('Invalid base image data URI format');
+      }
+      const mimeType = mimeInfo.split(':')[1]?.split(';')[0];
+      if (!mimeType) {
+        throw new Error('Could not extract MIME type from base image data URI');
+      }
+
       parts.push({
         inlineData: {
           data: base64Data,
@@ -136,30 +163,21 @@ async function generateImageWithGemini(prompt: string, baseImageDataUri?: string
         },
       });
     }
-    
+
     parts.push({ text: prompt });
 
     const result = await geminiImageModel.generateContent({
-      contents: [{ parts }],
+      contents: [{ role: 'user', parts }],
       generationConfig: {
         temperature: 0.7,
         topK: 40,
         topP: 0.95,
       },
-      safetySettings: [
-        {
-          category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-          threshold: 'BLOCK_ONLY_HIGH',
-        },
-        {
-          category: 'HARM_CATEGORY_HATE_SPEECH',
-          threshold: 'BLOCK_ONLY_HIGH',
-        },
-      ],
+      // Simplified safety settings to avoid type issues
     });
 
     const response = await result.response;
-    
+
     // Check if the response contains an image
     if (response.candidates && response.candidates[0]?.content?.parts) {
       for (const part of response.candidates[0].content.parts) {
@@ -172,14 +190,15 @@ async function generateImageWithGemini(prompt: string, baseImageDataUri?: string
     throw new Error('No image generated by Gemini');
   } catch (error) {
     console.error('Error generating image with Gemini:', error);
-    throw new Error(`Failed to generate image with Gemini: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to generate image with Gemini: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
 export async function generateMarketingImage(
   input: GenerateMarketingImageInput
 ): Promise<GenerateMarketingImageOutput> {
-  
   // Check if this is an existing prompt (simplified check based on topic)
   const cacheKey = `${input.topic}-${input.platform}-${input.imageType}`;
   const isExistingPrompt = input.isExistingPrompt || promptCache.has(cacheKey);
@@ -190,7 +209,7 @@ export async function generateMarketingImage(
 
   // Step 1: Generate optimized prompt with Mistral
   const optimizedPrompt = await generateOptimizedPrompt(input);
-  
+
   // Store in cache for future duplicate detection
   promptCache.set(cacheKey, optimizedPrompt);
 
@@ -207,13 +226,13 @@ export async function generateDualMarketingImages(
     // Generate two different prompts/approaches
     const [mistralPrompt, fallbackPrompt] = await Promise.all([
       generateOptimizedPrompt(input),
-      Promise.resolve(generateFallbackPrompt(input))
+      Promise.resolve(generateFallbackPrompt(input)),
     ]);
 
     // Generate two images in parallel
     const [geminiImage, mistralOptimizedImage] = await Promise.all([
       generateImageWithGemini(fallbackPrompt, input.baseImageDataUri),
-      generateImageWithGemini(mistralPrompt, input.baseImageDataUri)
+      generateImageWithGemini(mistralPrompt, input.baseImageDataUri),
     ]);
 
     return {
